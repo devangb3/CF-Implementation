@@ -139,9 +139,9 @@ Our contributions are:
     \item A formulation enabling offline learning from logged execution trajectories.
 \end{itemize}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\resizebox{0.95\columnwidth}{!}{%
+\resizebox{0.98\textwidth}{!}{%
 \begin{tikzpicture}[
     node distance=0.8cm and 1.0cm,
     mainbox/.style={rectangle, draw, rounded corners, minimum height=1.4cm, minimum width=2.4cm, align=center, font=\small\bfseries, line width=1pt},
@@ -186,7 +186,7 @@ Our contributions are:
 }
 \caption{Overview of the \textsc{CausalFlow} pipeline for causal attribution and counterfactual repair. Given a failed execution trace, we identify causally responsible steps via interventional scoring (CRS), generate minimal counterfactual repairs, and validate repairs through re-execution or outcome prediction.}
 \label{fig:pipeline}
-\end{figure}
+\end{figure*}
 
 
 \section{Related Work}
@@ -461,12 +461,12 @@ SealQA Hard improves from 42.5\% to 55.1\%, indicating that even in retrieval-he
 
 Importantly, these gains are achieved without modifying model parameters. All improvements result from structured causal intervention at inference time, demonstrating that many agent failures can be mitigated through targeted trace repair rather than retraining.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/results_combined.pdf}
+\includegraphics[width=0.98\textwidth]{figures/results_combined.pdf}
 \caption{Left: Repair rate across benchmarks (percentage of failed traces successfully repaired). Right: Baseline vs.\ post-repair accuracy, showing consistent improvements across all domains without model parameter updates.}
 \label{fig:results}
-\end{figure}
+\end{figure*}
 
 \subsection{Minimality and Localization of Repairs (RQ3)}
 
@@ -847,7 +847,5 @@ MedBrowseComp & 0.78 & --- \\
 \end{tabular}
 \end{small}
 \end{table}
-
-
 
 \end{document}

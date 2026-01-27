@@ -6,6 +6,8 @@
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
 \usepackage{booktabs} % for professional tables
 
 % hyperref makes hyperlinks in the resulting PDF.
@@ -34,6 +36,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
+\usepackage{fvextra}
 
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
@@ -141,7 +144,7 @@ Our contributions are:
 
 \begin{figure*}[t]
 \centering
-\resizebox{0.98\textwidth}{!}{%
+\resizebox{0.99\textwidth}{!}{%
 \begin{tikzpicture}[
     node distance=0.8cm and 1.0cm,
     mainbox/.style={rectangle, draw, rounded corners, minimum height=1.4cm, minimum width=2.4cm, align=center, font=\small\bfseries, line width=1pt},
@@ -600,7 +603,7 @@ We implement a \textsc{TraceLogger} that records agent execution as a sequence o
 
 The step types are defined as follows:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\footnotesize, breaklines=true, breakanywhere=true]
 class StepType(Enum):
     REASONING = "reasoning"
     TOOL_CALL = "tool_call"
@@ -608,7 +611,7 @@ class StepType(Enum):
     LLM_RESPONSE = "llm_response"
     MEMORY_ACCESS = "memory_access"
     FINAL_ANSWER = "final_answer"
-\end{verbatim}
+\end{Verbatim}
 
 Each step maintains a list of dependency indices referencing earlier steps in the trace. These dependencies define the edges of the causal graph.
 
@@ -629,22 +632,78 @@ To generate candidate counterfactual interventions, we use a structured promptin
     \item Feedback describing the failure outcome.
 \end{itemize}
 
-The prompt template is:
+The prompt template is shown in \Cref{fig:intervention_prompt}.
 
-\begin{verbatim}
-System: You are an expert at debugging agent
-reasoning steps. Given a step that contributed to 
-a failed execution, suggest a corrected version 
-that would lead to success.
+\begin{figure*}[t]
+\centering
+% The tcolorbox adds the gray background and frame
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title=\textbf{Prompt Template}, sharp corners=south]
+    % commandchars allows you to use LaTeX commands inside Verbatim
+    \begin{Verbatim}[fontsize=\footnotesize, commandchars=\\\{\}]
+\textbf{System:} You are an expert at debugging agent reasoning steps. Given a step that 
+contributed to a failed execution, suggest a corrected version that would lead to
+success.
 
 Context: [Previous steps in trace]
 Failed Step: [Step content]
 Feedback: [Execution failure message]
 
 Generate a minimal correction to this step.
-\end{verbatim}
+
+\textbf{User:} The agent failed a task. Your goal is to 
+fix the specific *logic error* in the current step.
+
+Problem Statement: \{problem_statement\}
+Correct Answer (FOR REFERENCE ONLY): \{gold_answer\}
+Agent's Incorrect Answer: \{final_answer\}
+
+EXECUTION ERROR LOGS (what went wrong):
+\{execution_logs\}
+
+CRITICAL CONSTRAINTS:
+1. The gold answer is provided for reference ONLY - DO NOT directly use it in your
+repair
+2. Fix the logical error in THIS step only - not the entire solution path
+3. Generate minimal, targeted edits that fix the logical error
+
+Context from previous steps:
+\{previous_step_context\}
+
+Current step (Step \{step_id\}, Type: \{step_type\}):
+\{step_payload\}
+    \end{Verbatim}
+\end{tcolorbox}
+\caption{Structured prompt template used to generate minimal counterfactual interventions for a candidate step. Note that variables in brackets are dynamically populated during the repair generation phase.}
+\label{fig:intervention_prompt}
+\end{figure*}
 
 Sampling is performed with temperature-based decoding to generate multiple intervention proposals per step.
+
+\subsection{Additional Prompt Templates}
+
+For completeness, we provide representative prompt templates used by the causal attribution component in \Cref{fig:causal_prompt_templates}. Braced fields denote instance-specific values.
+
+\begin{figure*}[t]
+\centering
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title=\textbf{Causal Attribution Prompt}, sharp corners=south]
+    \begin{Verbatim}[fontsize=\footnotesize, commandchars=\\\{\}]
+You are analyzing a failed agent execution. The agent produced an incorrect final
+answer.
+
+\textbf{Problem Statement:} \{problem_statement\}
+\textbf{Gold Answer (correct answer):} \{gold_answer\}
+\textbf{Environment feedback at the point of failure:} \{end_feedback\}
+
+\textbf{Context from previous steps:}
+\{previous_step_context\}
+
+\textbf{Current step (Step \{step_id\}, Type: \{step_type\}):}
+\{step_payload\}
+    \end{Verbatim}
+\end{tcolorbox}
+\caption{Prompt used by CausalFlow for causal attribution. The model is tasked with identifying if the current step is the root cause of the failure.}
+\label{fig:causal_prompt_templates}
+\end{figure*}
 
 \subsection{Repair Validation and Re-Execution}
 
@@ -760,23 +819,23 @@ These results indicate that repair effectiveness is influenced more by task stru
 Table~\ref{tab:dataset_stats} provides detailed statistics for each benchmark, including baseline accuracy and repair outcomes.
 
 \begin{table}[h]
-  \caption{Dataset and trace statistics. \textbf{Total / Avg.} row shows sums for counts and macro-averages for rates. Fix Rate = Fixed/Failed; Accuracy = Passed/Total.}
+  \caption{Dataset and trace statistics. \textbf{Total / Avg.} row shows sums for counts and macro-averages for rates. Accuracy = Passed/Total.}
   \label{tab:dataset_stats}
   \centering
-  \begin{small}
-    \begin{tabular}{lcccccc}
+  \resizebox{\columnwidth}{!}{%
+    \begin{tabular}{lccccc}
       \toprule
-      Benchmark & Total & Passed & Failed & Fixed & Fix Rate & Accuracy \\
+      Benchmark & Total & Passed & Failed & Fixed & Accuracy \\
       \midrule
-      GSM8K & 1319 & 989 & 330 & 173 & 52.4\% & 75.0\% \\
-      MBPP & 947 & 523 & 488 & 201 & 41.2\% & 55.2\% \\
-      SealQA Hard & 254 & 108 & 146 & 32 & 21.9\% & 42.5\% \\
-      MedBrowseComp & 484 & 149 & 335 & 149 & 44.5\% & 30.8\% \\
+      GSM8K & 1319 & 989 & 330 & 173 & 75.0\% \\
+      MBPP & 947 & 523 & 488 & 201 & 55.2\% \\
+      SealQA Hard & 254 & 108 & 146 & 32 & 42.5\% \\
+      MedBrowseComp & 484 & 149 & 335 & 149 & 30.8\% \\
       \midrule
-      \textbf{Total / Avg.} & 3004 & 1769 & 1299 & 555 & 40.0\% & 50.8\% \\
+      \textbf{Total / Avg.} & 3004 & 1769 & 1299 & 555 & 50.8\% \\
       \bottomrule
-    \end{tabular}
-  \end{small}
+    \end{tabular}%
+  }
 \end{table}
 
 \subsection{Skill Group Details}
@@ -802,6 +861,26 @@ These categories enable: (1) identification of systematic skill deficits in agen
 \subsection{Causal Attribution Reliability Metrics}
 
 In addition to repair success, we report two attribution-reliability metrics that evaluate whether \textsc{CausalFlow} identifies the correct failure-inducing step(s), and how often multi-agent validation agrees with the proposer.
+
+\begin{table}[!t]
+\caption{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation.
+\\
+Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.}
+\label{tab:attrib_metrics}
+\centering
+\begin{small}
+\begin{tabular}{lcc}
+\toprule
+Benchmark & CRS Precision ($\uparrow$) & Consensus Rate ($\uparrow$) \\
+\midrule
+GSM8K & 0.72 & 0.65 \\
+MBPP & 0.84 & --- \\
+SealQA Hard & 0.68 & --- \\
+MedBrowseComp & 0.78 & --- \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{table}
 
 \paragraph{CRS Precision.}
 For each failed trace $\tau$ with verifier outcome $\mathcal{V}(y(\tau),x)=0$, let
@@ -829,23 +908,5 @@ For each candidate step $s_i$ evaluated in a failed trace, we compute a consensu
 {\sum_{\tau \in \mathcal{F}} |\mathcal{S}_{\mathrm{pred}}(\tau)|}.
 \]
 This measures how often the multi-agent validators corroborate the proposer’s causal attributions.
-
-\begin{table}[h]
-\caption{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.}
-\label{tab:attrib_metrics}
-\centering
-\begin{small}
-\begin{tabular}{lcc}
-\toprule
-Benchmark & CRS Precision ($\uparrow$) & Consensus Rate ($\uparrow$) \\
-\midrule
-GSM8K & 0.72 & 0.65 \\
-MBPP & 0.84 & --- \\
-SealQA Hard & 0.68 & --- \\
-MedBrowseComp & 0.78 & --- \\
-\bottomrule
-\end{tabular}
-\end{small}
-\end{table}
 
 \end{document}

@@ -16,6 +16,8 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand*\HyPL@Entry[1]{}
 \HyPL@Entry{0<</S/D>>}
+\@LN@col{1}
+\@LN@col{2}
 \citation{shinn2023reflexion}
 \citation{madaan2023selfrefine}
 \citation{yao2022react}
@@ -35,22 +37,36 @@
 \citation{meng2022rome}
 \citation{chi2024causal,kiciman2024causalllm}
 \citation{geiger2023causal}
+\@LN@col{1}
+\@LN@col{2}
 \citation{halpern2005causes}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:pipeline}{{1}{3}{Overview of the \textsc {CausalFlow} pipeline for causal attribution and counterfactual repair. Given a failed execution trace, we identify causally responsible steps via interventional scoring (CRS), generate minimal counterfactual repairs, and validate repairs through re-execution or outcome prediction.\relax }{figure.caption.1}{}}
 \newlabel{fig:pipeline@cref}{{[figure][1][]1}{[1][2][]3}}
+\@LN@col{1}
+\@LN@col{2}
+\@LN@col{1}
 \newlabel{alg:crs}{{1}{4}{Causal Responsibility Scoring\relax }{algorithm.1}{}}
 \newlabel{alg:crs@cref}{{[algorithm][1][]1}{[1][4][]4}}
+\@LN@col{2}
 \citation{cobbe2021gsm8k}
 \citation{austin2021program}
 \citation{pham2025sealqa}
 \citation{chen2025medbrowsecomp}
+\@LN@col{1}
+\@LN@col{2}
+\@LN@col{1}
 \newlabel{tab:main_results}{{1}{6}{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures position-wise token similarity between original and repaired steps (higher = smaller edits).\relax }{table.caption.2}{}}
 \newlabel{tab:main_results@cref}{{[table][1][]1}{[1][5][]6}}
+\@LN@col{2}
 \newlabel{tab:accuracy}{{2}{6}{Baseline and post-repair accuracy across benchmarks.\relax }{table.caption.3}{}}
 \newlabel{tab:accuracy@cref}{{[table][2][]2}{[1][6][]6}}
 \newlabel{fig:results}{{2}{7}{Left: Repair rate across benchmarks (percentage of failed traces successfully repaired). Right: Baseline vs.\ post-repair accuracy, showing consistent improvements across all domains without model parameter updates.\relax }{figure.caption.4}{}}
 \newlabel{fig:results@cref}{{[figure][2][]2}{[1][6][]7}}
+\@LN@col{1}
+\@LN@col{2}
+\@LN@col{1}
+\@LN@col{2}
 \bibdata{example_paper}
 \bibcite{austin2021program}{{1}{2021}{{Austin et~al.}}{{Austin, Odena, Nye, Bosma, Michalewski, Dohan, Jiang, Cai, Terry, Le, and Sutton}}}
 \bibcite{chen2025medbrowsecomp}{{2}{2025}{{Chen et~al.}}{{Chen, Moreira, Xiao, Schmidgall, Warner, Aerts, Hartvigsen, Gallifant, and Bitterman}}}
@@ -62,6 +78,8 @@
 \bibcite{halpern2005causes}{{8}{2005}{{Halpern \& Pearl}}{{Halpern and Pearl}}}
 \bibcite{hong2024orpo}{{9}{2024}{{Hong et~al.}}{{Hong, Lee, and Thorne}}}
 \bibcite{kiciman2024causalllm}{{10}{2024}{{K{\i }c{\i }man et~al.}}{{K{\i }c{\i }man, Ness, Sharma, and Tan}}}
+\@LN@col{1}
+\@LN@col{2}
 \bibcite{lightman2024verify}{{11}{2024}{{Lightman et~al.}}{{Lightman, Kosaraju, Burda, Edwards, Baker, Lee, Leike, Schulman, Sutskever, and Cobbe}}}
 \bibcite{madaan2023selfrefine}{{12}{2023}{{Madaan et~al.}}{{Madaan, Tandon, Gupta, Hallinan, Gao, Wiegreffe, Alon, Dziri, Prabhumoye, Yang, Gupta, Majumder, Hermann, Welleck, Yazdanbakhsh, and Clark}}}
 \bibcite{meng2022rome}{{13}{2022}{{Meng et~al.}}{{Meng, Bau, Andonian, and Belinkov}}}
@@ -79,14 +97,30 @@
 \bibcite{yuan2023rrhf}{{25}{2023}{{Yuan et~al.}}{{Yuan, Yuan, Tan, Wang, Huang, and Huang}}}
 \bibcite{zhang2024process}{{26}{2024}{{Zhang et~al.}}{{Zhang, Hosseini, Bansal, Kazemi, Kumar, and Agarwal}}}
 \bibstyle{icml2026}
+\@LN@col{1}
+\@LN@col{2}
 \citation{cobbe2021gsm8k}
 \citation{austin2021program}
+\@LN@col{1}
+\@LN@col{2}
 \citation{pham2025sealqa}
 \citation{chen2025medbrowsecomp}
-\newlabel{tab:per_model}{{3}{12}{Repair performance broken down by base model.\relax }{table.caption.7}{}}
-\newlabel{tab:per_model@cref}{{[table][3][2147483647]3}{[1][12][]12}}
-\newlabel{tab:dataset_stats}{{4}{13}{Dataset and trace statistics. \textbf {Total / Avg.} row shows sums for counts and macro-averages for rates. Fix Rate = Fixed/Failed; Accuracy = Passed/Total.\relax }{table.caption.8}{}}
-\newlabel{tab:dataset_stats@cref}{{[table][4][2147483647]4}{[1][12][]13}}
-\newlabel{tab:attrib_metrics}{{5}{13}{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.\relax }{table.caption.9}{}}
-\newlabel{tab:attrib_metrics@cref}{{[table][5][2147483647]5}{[1][13][]13}}
-\gdef \@abspage@last{13}
+\newlabel{fig:intervention_prompt}{{3}{12}{Structured prompt template used to generate minimal counterfactual interventions for a candidate step.\relax }{figure.caption.7}{}}
+\newlabel{fig:intervention_prompt@cref}{{[figure][3][2147483647]3}{[1][11][]12}}
+\newlabel{fig:causal_prompt_templates}{{4}{12}{Prompt used by CausalFlow for causal attribution.\relax }{figure.caption.8}{}}
+\newlabel{fig:causal_prompt_templates@cref}{{[figure][4][2147483647]4}{[1][11][]12}}
+\@LN@col{1}
+\@LN@col{2}
+\newlabel{fig:repair_prompt_template}{{5}{13}{Representative prompt template used to generate minimally edited counterfactual repairs for a causally responsible step.\relax }{figure.caption.9}{}}
+\newlabel{fig:repair_prompt_template@cref}{{[figure][5][2147483647]5}{[1][11][]13}}
+\@LN@col{1}
+\newlabel{tab:per_model}{{3}{13}{Repair performance broken down by base model.\relax }{table.caption.10}{}}
+\newlabel{tab:per_model@cref}{{[table][3][2147483647]3}{[1][13][]13}}
+\@LN@col{2}
+\newlabel{tab:dataset_stats}{{4}{13}{Dataset and trace statistics. \textbf {Total / Avg.} row shows sums for counts and macro-averages for rates. Accuracy = Passed/Total.\relax }{table.caption.11}{}}
+\newlabel{tab:dataset_stats@cref}{{[table][4][2147483647]4}{[1][13][]13}}
+\@LN@col{1}
+\newlabel{tab:attrib_metrics}{{5}{14}{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. \\ Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.\relax }{table.caption.12}{}}
+\newlabel{tab:attrib_metrics@cref}{{[table][5][2147483647]5}{[1][14][]14}}
+\@LN@col{2}
+\gdef \@abspage@last{14}

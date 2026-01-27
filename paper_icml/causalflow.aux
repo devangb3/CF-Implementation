@@ -45,10 +45,12 @@
 \citation{austin2021program}
 \citation{pham2025sealqa}
 \citation{chen2025medbrowsecomp}
-\newlabel{tab:main_results}{{1}{5}{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures token-level overlap between original and repaired steps (higher = smaller edits).\relax }{table.caption.2}{}}
+\newlabel{tab:main_results}{{1}{5}{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures position-wise token similarity between original and repaired steps (higher = smaller edits).\relax }{table.caption.2}{}}
 \newlabel{tab:main_results@cref}{{[table][1][]1}{[1][5][]5}}
 \newlabel{tab:accuracy}{{2}{6}{Baseline and post-repair accuracy across benchmarks.\relax }{table.caption.3}{}}
 \newlabel{tab:accuracy@cref}{{[table][2][]2}{[1][6][]6}}
+\newlabel{fig:results}{{2}{6}{Left: Repair rate across benchmarks (percentage of failed traces successfully repaired). Right: Baseline vs.\ post-repair accuracy, showing consistent improvements across all domains without model parameter updates.\relax }{figure.caption.4}{}}
+\newlabel{fig:results@cref}{{[figure][2][]2}{[1][6][]6}}
 \bibdata{example_paper}
 \bibcite{austin2021program}{{1}{2021}{{Austin et~al.}}{{Austin, Odena, Nye, Bosma, Michalewski, Dohan, Jiang, Cai, Terry, Le, and Sutton}}}
 \bibcite{chen2025medbrowsecomp}{{2}{2025}{{Chen et~al.}}{{Chen, Moreira, Xiao, Schmidgall, Warner, Aerts, Hartvigsen, Gallifant, and Bitterman}}}
@@ -81,10 +83,10 @@
 \citation{austin2021program}
 \citation{pham2025sealqa}
 \citation{chen2025medbrowsecomp}
-\newlabel{tab:per_model}{{3}{12}{Repair performance broken down by base model.\relax }{table.caption.6}{}}
+\newlabel{tab:per_model}{{3}{12}{Repair performance broken down by base model.\relax }{table.caption.7}{}}
 \newlabel{tab:per_model@cref}{{[table][3][2147483647]3}{[1][12][]12}}
-\newlabel{tab:dataset_stats}{{4}{12}{Dataset and trace statistics. \textbf {Total / Avg.} row shows sums for counts and macro-averages for rates. Fix Rate = Fixed/Failed; Accuracy = Passed/Total.\relax }{table.caption.7}{}}
+\newlabel{tab:dataset_stats}{{4}{12}{Dataset and trace statistics. \textbf {Total / Avg.} row shows sums for counts and macro-averages for rates. Fix Rate = Fixed/Failed; Accuracy = Passed/Total.\relax }{table.caption.8}{}}
 \newlabel{tab:dataset_stats@cref}{{[table][4][2147483647]4}{[1][12][]12}}
-\newlabel{tab:attrib_metrics}{{5}{13}{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.\relax }{table.caption.8}{}}
+\newlabel{tab:attrib_metrics}{{5}{13}{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.\relax }{table.caption.9}{}}
 \newlabel{tab:attrib_metrics@cref}{{[table][5][2147483647]5}{[1][13][]13}}
 \gdef \@abspage@last{13}

@@ -306,14 +306,12 @@ Intervened traces are evaluated through:
 For steps with $\text{CRS}(s_i)=1$, we generate validated \emph{counterfactual repairs}.
 
 \paragraph{Minimality.}
-We encourage minimal interventions to preserve interpretability and isolate the root cause. Minimality is measured via token-level Jaccard similarity:
+We encourage minimal interventions to preserve interpretability and isolate the root cause. Minimality is measured via position-wise token matching with a length penalty:
 \begin{equation}
     \text{Minimality}(s_i, s_i') =
-    \frac{|\text{tokens}(s_i) \cap \text{tokens}(s_i')|}
-    {|\text{tokens}(s_i) \cup \text{tokens}(s_i')|}.
+    \frac{m}{L}\left(1 - \tfrac{1}{2}\cdot\frac{\left|\;|x|-|y|\;\right|}{L}\right),
 \end{equation}
-
-Higher values indicate smaller edits.
+where $x=\text{tokens}(s_i)$ and $y=\text{tokens}(s_i')$ are token sequences, $L=\max(|x|,|y|)$, and $m=\sum_{k=1}^{\min(|x|,|y|)} \mathbb{I}[x_k = y_k]$ counts position-wise token matches. Higher scores indicate smaller edits.
 
 \paragraph{Repair Selection.}
 Among successful interventions, we select the repair maximizing minimality:
@@ -395,7 +393,7 @@ For multi-agent validation, we retain causal steps with $\mathrm{Consensus}(s_i)
 
 \subsection{Evaluation Metrics}
 
-We report the following metrics. Repair Rate measures the fraction of failed traces that are successfully converted to correct executions. Post-Repair Accuracy measures overall task accuracy after deploy-time repair is applied. CRS Precision evaluates the reliability of identified causal steps. Minimality Score quantifies token-level overlap between original and repaired steps. Finally, Consensus Rate captures agreement among multi-agent validators.
+We report the following metrics. Repair Rate measures the fraction of failed traces that are successfully converted to correct executions. Post-Repair Accuracy measures overall task accuracy after deploy-time repair is applied. CRS Precision evaluates the reliability of identified causal steps. Minimality Score quantifies position-wise token similarity between original and repaired steps. Finally, Consensus Rate captures agreement among multi-agent validators.
 
 
 \section{Results}
@@ -408,7 +406,7 @@ Table~\ref{tab:main_results} summarizes repair performance across all domains. \
 
 
 \begin{table}[t]
-\caption{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures token-level overlap between original and repaired steps (higher = smaller edits).}
+\caption{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures position-wise token similarity between original and repaired steps (higher = smaller edits).}
 \label{tab:main_results}
 \centering
 \begin{small}
@@ -457,11 +455,18 @@ MedBrowseComp & 30.8\% & 61.6\% \\
 \end{small}
 \end{table}
 
-Counterfactual repair yields consistent improvements in overall task accuracy across all domains. On GSM8K, accuracy increases from 75.0\% to 88.1\%, reflecting the correction of arithmetic and constraint-propagation errors. MBPP improves from 55.2\% to 76.4\%, demonstrating the effectiveness of targeted logic correction in program synthesis tasks.
+Counterfactual repair yields consistent improvements in overall task accuracy across all domains (\Cref{fig:results}). On GSM8K, accuracy increases from 75.0\% to 88.1\%, reflecting the correction of arithmetic and constraint-propagation errors. MBPP improves from 55.2\% to 76.4\%, demonstrating the effectiveness of targeted logic correction in program synthesis tasks.
 
 SealQA Hard improves from 42.5\% to 55.1\%, indicating that even in retrieval-heavy settings, a meaningful subset of failures arise from fixable reasoning decisions. The most dramatic improvement is observed in MedBrowseComp, where accuracy increases from 30.8\% to 61.6\%, highlighting the impact of repairing localized reasoning and navigation errors in browsing-based tasks.
 
 Importantly, these gains are achieved without modifying model parameters. All improvements result from structured causal intervention at inference time, demonstrating that many agent failures can be mitigated through targeted trace repair rather than retraining.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/results_combined.pdf}
+\caption{Left: Repair rate across benchmarks (percentage of failed traces successfully repaired). Right: Baseline vs.\ post-repair accuracy, showing consistent improvements across all domains without model parameter updates.}
+\label{fig:results}
+\end{figure}
 
 \subsection{Minimality and Localization of Repairs (RQ3)}
 

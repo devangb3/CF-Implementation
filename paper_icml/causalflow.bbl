@@ -1,8 +1,200 @@
-\begin{thebibliography}{0}
+\begin{thebibliography}{26}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Austin et~al.(2021)Austin, Odena, Nye, Bosma, Michalewski, Dohan,
+  Jiang, Cai, Terry, Le, and Sutton]{austin2021program}
+Austin, J., Odena, A., Nye, M., Bosma, M., Michalewski, H., Dohan, D., Jiang,
+  E., Cai, C., Terry, M., Le, Q., and Sutton, C.
+\newblock Program synthesis with large language models.
+\newblock \emph{arXiv preprint arXiv:2108.07732}, 2021.
+
+\bibitem[Chen et~al.(2025)Chen, Moreira, Xiao, Schmidgall, Warner, Aerts,
+  Hartvigsen, Gallifant, and Bitterman]{chen2025medbrowsecomp}
+Chen, S., Moreira, P., Xiao, Y., Schmidgall, S., Warner, J., Aerts, H.,
+  Hartvigsen, T., Gallifant, J., and Bitterman, D.~S.
+\newblock {MedBrowseComp}: A benchmark for multi-hop medical fact retrieval.
+\newblock \emph{arXiv preprint arXiv:2505.14963}, 2025.
+
+\bibitem[Chen et~al.(2024)Chen, Lin, Sch{\"a}rli, and
+  Zhou]{chen2024selfdebugging}
+Chen, X., Lin, M., Sch{\"a}rli, N., and Zhou, D.
+\newblock Teaching large language models to self-debug.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Chi et~al.(2024)Chi, Li, et~al.]{chi2024causal}
+Chi, H., Li, H., et~al.
+\newblock Unveiling causal reasoning in large language models: Reality or
+  mirage?
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~37, 2024.
+
+\bibitem[Cobbe et~al.(2021)Cobbe, Kosaraju, Bavarian, Chen, Jun, Kaiser,
+  Plappert, Tworek, Hilton, Nakano, Hesse, and Schulman]{cobbe2021gsm8k}
+Cobbe, K., Kosaraju, V., Bavarian, M., Chen, M., Jun, H., Kaiser, L., Plappert,
+  M., Tworek, J., Hilton, J., Nakano, R., Hesse, C., and Schulman, J.
+\newblock Training verifiers to solve math word problems.
+\newblock \emph{arXiv preprint arXiv:2110.14168}, 2021.
+
+\bibitem[Geiger et~al.(2021)Geiger, Lu, Icard, and Potts]{geiger2023causal}
+Geiger, A., Lu, H., Icard, T., and Potts, C.
+\newblock Causal abstractions of neural networks.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~34, 2021.
+
+\bibitem[Gou et~al.(2024)Gou, Shao, Gong, Shen, Yang, Duan, and
+  Chen]{gou2024critic}
+Gou, Z., Shao, Z., Gong, Y., Shen, Y., Yang, Y., Duan, N., and Chen, W.
+\newblock {CRITIC}: Large language models can self-correct with
+  tool-interactive critiquing.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Halpern \& Pearl(2005)Halpern and Pearl]{halpern2005causes}
+Halpern, J.~Y. and Pearl, J.
+\newblock Causes and explanations: A structural-model approach. part {I}:
+  Causes.
+\newblock \emph{The British Journal for the Philosophy of Science}, 56\penalty0
+  (4):\penalty0 843--887, 2005.
+
+\bibitem[Hong et~al.(2024)Hong, Lee, and Thorne]{hong2024orpo}
+Hong, J., Lee, N., and Thorne, J.
+\newblock {ORPO}: Monolithic preference optimization without reference model.
+\newblock In \emph{Proceedings of the 2024 Conference on Empirical Methods in
+  Natural Language Processing}, pp.\  11170--11189, 2024.
+
+\bibitem[K{\i}c{\i}man et~al.(2024)K{\i}c{\i}man, Ness, Sharma, and
+  Tan]{kiciman2024causalllm}
+K{\i}c{\i}man, E., Ness, R., Sharma, A., and Tan, C.
+\newblock Causal reasoning and large language models: Opening a new frontier
+  for causality.
+\newblock \emph{Transactions on Machine Learning Research}, 2024.
+
+\bibitem[Lightman et~al.(2024)Lightman, Kosaraju, Burda, Edwards, Baker, Lee,
+  Leike, Schulman, Sutskever, and Cobbe]{lightman2024verify}
+Lightman, H., Kosaraju, V., Burda, Y., Edwards, H., Baker, B., Lee, T., Leike,
+  J., Schulman, J., Sutskever, I., and Cobbe, K.
+\newblock Let's verify step by step.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Madaan et~al.(2023)Madaan, Tandon, Gupta, Hallinan, Gao, Wiegreffe,
+  Alon, Dziri, Prabhumoye, Yang, Gupta, Majumder, Hermann, Welleck,
+  Yazdanbakhsh, and Clark]{madaan2023selfrefine}
+Madaan, A., Tandon, N., Gupta, P., Hallinan, S., Gao, L., Wiegreffe, S., Alon,
+  U., Dziri, N., Prabhumoye, S., Yang, Y., Gupta, S., Majumder, B.~P., Hermann,
+  K., Welleck, S., Yazdanbakhsh, A., and Clark, P.
+\newblock Self-refine: Iterative refinement with self-feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
+
+\bibitem[Meng et~al.(2022)Meng, Bau, Andonian, and Belinkov]{meng2022rome}
+Meng, K., Bau, D., Andonian, A., and Belinkov, Y.
+\newblock Locating and editing factual associations in {GPT}.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~35, 2022.
+
+\bibitem[Nye et~al.(2022)Nye, Andreassen, Gur-Ari, Michalewski, Austin, Bieber,
+  Dohan, Lewkowycz, Bosma, Luan, Sutton, and Odena]{nye2022scratchpad}
+Nye, M., Andreassen, A.~J., Gur-Ari, G., Michalewski, H., Austin, J., Bieber,
+  D., Dohan, D., Lewkowycz, A., Bosma, M., Luan, D., Sutton, C., and Odena, A.
+\newblock Show your work: Scratchpads for intermediate computation with
+  language models.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem[Ouyang et~al.(2022)Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin,
+  Zhang, Agarwal, Slama, Ray, Schulman, Hilton, Kelton, Miller, Simens, Askell,
+  Welinder, Christiano, Leike, and Lowe]{ouyang2022training}
+Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., Zhang,
+  C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F.,
+  Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P.~F., Leike,
+  J., and Lowe, R.
+\newblock Training language models to follow instructions with human feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~35, pp.\  27730--27744, 2022.
+
+\bibitem[Pham et~al.(2025)Pham, Nguyen, Zunjare, Chen, Tseng, and
+  Vu]{pham2025sealqa}
+Pham, T., Nguyen, N., Zunjare, P., Chen, W., Tseng, Y.-M., and Vu, T.
+\newblock {SealQA}: Raising the bar for reasoning in search-augmented language
+  models.
+\newblock \emph{arXiv preprint arXiv:2506.01062}, 2025.
+
+\bibitem[Rafailov et~al.(2023)Rafailov, Sharma, Mitchell, Ermon, Manning, and
+  Finn]{rafailov2023dpo}
+Rafailov, R., Sharma, A., Mitchell, E., Ermon, S., Manning, C.~D., and Finn, C.
+\newblock Direct preference optimization: Your language model is secretly a
+  reward model.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
+
+\bibitem[Setlur et~al.(2024)Setlur, Garg, Geng, Garg, Smith, and
+  Kumar]{setlur2024rewarding}
+Setlur, A., Garg, S., Geng, X., Garg, N., Smith, V., and Kumar, A.
+\newblock {RL} on incorrect synthetic data scales the efficiency of {LLM} math
+  reasoning by eight-fold.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~37, 2024.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Gopinath, Narasimhan, and
+  Yao]{shinn2023reflexion}
+Shinn, N., Cassano, F., Gopinath, A., Narasimhan, K., and Yao, S.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
+
+\bibitem[Snell et~al.(2023)Snell, Kostrikov, Su, Yang, and
+  Levine]{snell2023ilql}
+Snell, C., Kostrikov, I., Su, Y., Yang, M., and Levine, S.
+\newblock Offline {RL} for natural language generation with implicit language q
+  learning.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+
+\bibitem[Uesato et~al.(2022)Uesato, Kushman, Kumar, Song, Siegel, Wang,
+  Creswell, Irving, and Higgins]{uesato2022process}
+Uesato, J., Kushman, N., Kumar, R., Song, F., Siegel, N., Wang, L., Creswell,
+  A., Irving, G., and Higgins, I.
+\newblock Solving math word problems with process- and outcome-based feedback.
+\newblock \emph{arXiv preprint arXiv:2211.14275}, 2022.
+
+\bibitem[Yang et~al.(2024)Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and
+  Press]{yang2024sweagent}
+Yang, J., Jimenez, C.~E., Wettig, A., Lieret, K., Yao, S., Narasimhan, K., and
+  Press, O.
+\newblock {SWE-agent}: Agent-computer interfaces enable automated software
+  engineering.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~37, 2024.
+
+\bibitem[Yao et~al.(2023{\natexlab{a}})Yao, Yu, Zhao, Shafran, Griffiths, Cao,
+  and Narasimhan]{yao2023tree}
+Yao, S., Yu, D., Zhao, J., Shafran, I., Griffiths, T.~L., Cao, Y., and
+  Narasimhan, K.
+\newblock Tree of thoughts: Deliberate problem solving with large language
+  models.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023{\natexlab{a}}.
+
+\bibitem[Yao et~al.(2023{\natexlab{b}})Yao, Zhao, Yu, Du, Shafran, Narasimhan,
+  and Cao]{yao2022react}
+Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., and Cao, Y.
+\newblock {ReAct}: Synergizing reasoning and acting in language models.
+\newblock In \emph{International Conference on Learning Representations},
+  2023{\natexlab{b}}.
+
+\bibitem[Yuan et~al.(2023)Yuan, Yuan, Tan, Wang, Huang, and
+  Huang]{yuan2023rrhf}
+Yuan, Z., Yuan, H., Tan, C., Wang, W., Huang, S., and Huang, F.
+\newblock {RRHF}: Rank responses to align language models with human feedback
+  without tears.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
+
+\bibitem[Zhang et~al.(2024)Zhang, Hosseini, Bansal, Kazemi, Kumar, and
+  Agarwal]{zhang2024process}
+Zhang, L., Hosseini, A., Bansal, H., Kazemi, M., Kumar, A., and Agarwal, R.
+\newblock Generative verifiers: Reward modeling as next-token prediction.
+\newblock \emph{arXiv preprint arXiv:2408.15240}, 2024.
 
 \end{thebibliography}

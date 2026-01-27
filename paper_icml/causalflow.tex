@@ -34,6 +34,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
+
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
 
@@ -601,8 +602,6 @@ class StepType(Enum):
     TOOL_RESPONSE = "tool_response"
     LLM_RESPONSE = "llm_response"
     MEMORY_ACCESS = "memory_access"
-    ENVIRONMENT_ACTION = "environment_action"
-    ENVIRONMENT_OBSERVATION = "environment_observation"
     FINAL_ANSWER = "final_answer"
 \end{verbatim}
 
@@ -612,14 +611,6 @@ Each step maintains a list of dependency indices referencing earlier steps in th
 
 The causal graph is constructed directly from recorded step dependencies using NetworkX. Nodes correspond to steps and edges represent directed dependency relationships.
 
-\begin{verbatim}
-def _build_graph(self):
-    for step in self.trace.steps:
-        self.graph.add_node(step.step_id, step_type=step.step_type.value)
-    for step in self.trace.steps:
-        for dep_id in step.dependencies:
-            self.graph.add_edge(dep_id, step.step_id)
-\end{verbatim}
 
 This construction ensures that intervention and re-execution operate over an explicit directed acyclic graph rather than assuming purely sequential execution.
 
@@ -636,9 +627,10 @@ To generate candidate counterfactual interventions, we use a structured promptin
 The prompt template is:
 
 \begin{verbatim}
-System: You are an expert at debugging agent reasoning steps.
-Given a step that contributed to a failed execution, suggest
-a corrected version that would lead to success.
+System: You are an expert at debugging agent
+reasoning steps. Given a step that contributed to 
+a failed execution, suggest a corrected version 
+that would lead to success.
 
 Context: [Previous steps in trace]
 Failed Step: [Step content]
@@ -652,17 +644,6 @@ Sampling is performed with temperature-based decoding to generate multiple inter
 \subsection{Repair Validation and Re-Execution}
 
 Repairs are validated through either deterministic re-execution or predictive outcome estimation, depending on task availability of an executor.
-
-\begin{verbatim}
-def _evaluate_repair_success(self, step_id, repaired_step):
-    if self.reexecutor is not None:
-        # Deterministic validation
-        new_trace = self.reexecutor.execute(repaired_step)
-        return new_trace.outcome == "success"
-    else:
-        # LLM-based prediction
-        return self._predict_outcome(repaired_step)
-\end{verbatim}
 
 For tasks such as MBPP and GSM8K, deterministic execution ensures reliable validation. For browsing-based tasks, outcome prediction relies on LLM-based evaluation of the modified trace.
 
@@ -753,7 +734,7 @@ Table~\ref{tab:per_model} provides a breakdown of repair performance by base mod
   \caption{Repair performance broken down by base model.}
   \label{tab:per_model}
   \centering
-  \begin{small}
+  \resizebox{\columnwidth}{!}{%
     \begin{tabular}{llccc}
       \toprule
       Benchmark & Model & Failed & Repaired & Repair Rate \\
@@ -763,8 +744,8 @@ Table~\ref{tab:per_model} provides a breakdown of repair performance by base mod
       SealQA Hard & Gemini 3 Flash & 146 & 32 & 21.9\% \\
       MedBrowseComp & Gemini 3 Flash & 335 & 149 & 44.5\% \\
       \bottomrule
-    \end{tabular}
-  \end{small}
+    \end{tabular}%
+  }
 \end{table}
 
 These results indicate that repair effectiveness is influenced more by task structure than by the specific base model.
@@ -845,7 +826,7 @@ For each candidate step $s_i$ evaluated in a failed trace, we compute a consensu
 This measures how often the multi-agent validators corroborate the proposer’s causal attributions.
 
 \begin{table}[h]
-\caption{Attribution-reliability metrics reported in the Appendix. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention under DAG-consistent re-execution. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation.}
+\caption{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.}
 \label{tab:attrib_metrics}
 \centering
 \begin{small}
@@ -854,9 +835,9 @@ This measures how often the multi-agent validators corroborate the proposer’s 
 Benchmark & CRS Precision ($\uparrow$) & Consensus Rate ($\uparrow$) \\
 \midrule
 GSM8K & 0.72 & 0.65 \\
-MBPP & 0.84 & 0.72 \\
-SealQA Hard & 0.68 & 0.55 \\
-MedBrowseComp & 0.78 & 0.65 \\
+MBPP & 0.84 & --- \\
+SealQA Hard & 0.68 & --- \\
+MedBrowseComp & 0.78 & --- \\
 \bottomrule
 \end{tabular}
 \end{small}

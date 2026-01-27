@@ -34,9 +34,6 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
-% TikZ for workflow figure
-\usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
 
 % if you use cleveref..
 \usepackage[capitalize,noabbrev]{cleveref}
@@ -123,7 +120,7 @@ Prior approaches address agent failures through heuristic retries, critique-driv
 
 We introduce \textbf{CausalFlow}, a framework for interventional analysis and counterfactual repair of multi-step agent executions. CausalFlow models an execution trace as a directed acyclic graph induced by explicit step dependencies. Given a failed trace, it performs step-level counterfactual interventions: replacing a candidate step and re-executing downstream computation to test whether the final outcome changes. This defines a \emph{Causal Responsibility Score (CRS)}, identifying steps whose intervention flips failure to success.
 
-For causally responsible steps, CausalFlow generates minimally edited counterfactual repairs and validates them via deterministic re-execution or outcome prediction. Each validated repair yields a structured contrastive pair (wrong step, corrected step), transforming execution failures into reusable supervision (\Cref{fig:pipeline}). This enables two complementary uses: deploy-time repair that improves reliability without parameter updates, and training-time supervision suitable for offline preference optimization or reward modeling.
+For causally responsible steps, CausalFlow generates minimally edited counterfactual repairs and validates them via deterministic re-execution or outcome prediction. Each validated repair yields a structured contrastive pair (wrong step, corrected step), transforming execution failures into reusable supervision. This enables two complementary uses: deploy-time repair that improves reliability without parameter updates, and training-time supervision suitable for offline preference optimization or reward modeling.
 
 We evaluate CausalFlow across four benchmarks spanning mathematical reasoning (GSM8K), code generation (MBPP), question answering (SealQA Hard), and medical browsing (MedBrowseComp), totaling over 3,000 problems. CausalFlow converts 42.7\% of failed executions into validated minimal repairs and demonstrates measurable improvements in downstream task success through targeted counterfactual repair.
 
@@ -138,55 +135,6 @@ Our contributions are:
     \item Empirical evaluation across diverse domains demonstrating scalable supervision extraction and deploy-time reliability gains.
     \item A formulation enabling offline learning from logged execution trajectories.
 \end{itemize}
-
-\begin{figure}[t]
-\centering
-\resizebox{0.95\columnwidth}{!}{%
-\begin{tikzpicture}[
-    node distance=0.8cm and 1.0cm,
-    mainbox/.style={rectangle, draw, rounded corners, minimum height=1.4cm, minimum width=2.4cm, align=center, font=\small\bfseries, line width=1pt},
-    subbox/.style={rectangle, draw, rounded corners=2pt, minimum height=0.6cm, minimum width=2.4cm, align=center, font=\scriptsize},
-    inputbox/.style={rectangle, draw, rounded corners, minimum height=1.0cm, minimum width=1.8cm, align=center, font=\small, dashed},
-    outputbox/.style={cylinder, shape border rotate=90, draw, minimum height=1.4cm, minimum width=1.4cm, shape aspect=0.25, align=center, font=\small, line width=1.5pt},
-    arrow/.style={-{Stealth[length=3mm]}, thick},
-    note/.style={font=\scriptsize, align=center},
-    label/.style={font=\scriptsize\itshape, text=gray},
-]
-    % Input
-    \node[inputbox, fill=gray!10] (input) {Failed Trace\\$\tau = (s_1, \ldots, s_n)$};
-
-    % Stage 1: Causal Step Identification
-    \node[mainbox, fill=orange!15, right=of input] (crs) {Causal Step\\Identification};
-    \node[subbox, fill=orange!10, below=0.2cm of crs] (crs1) {Intervene on each step $s_i$};
-    \node[subbox, fill=orange!10, below=0.08cm of crs1, text width=2.6cm] (crs2) {Compute CRS$(s_i) = \mathbb{I}[\mathcal{V}(\tau') = 1]$};
-
-    % Stage 2: Repair Generation
-    \node[mainbox, fill=green!15, right=of crs] (repair) {Counterfactual\\Repair};
-    \node[subbox, fill=green!10, below=0.2cm of repair] (rep1) {For each $s_i$ with CRS$=1$};
-    \node[subbox, fill=green!10, below=0.08cm of rep1, text width=2.8cm] (rep2) {Generate repairs $s'_i$, rank by minimality};
-
-    % Stage 3: Validation
-    \node[mainbox, fill=blue!15, right=of repair] (validate) {Multi-Agent\\Validation};
-    \node[subbox, fill=blue!10, below=0.2cm of validate] (val1) {Re-execute $\tau[i \leftarrow s'_i]$};
-    \node[subbox, fill=blue!10, below=0.08cm of val1] (val2) {Keep if $\mathcal{V}(\tau') = 1$};
-
-    % Output
-    \node[outputbox, fill=red!10, right=of validate] (output) {Validated\\Repairs};
-
-    % Main arrows
-    \draw[arrow] (input) -- (crs);
-    \draw[arrow] (crs) -- (repair);
-    \draw[arrow] (repair) -- (validate);
-    \draw[arrow] (validate) -- (output);
-
-    % Output description
-    \node[note, below=0.25cm of output, text width=2.0cm] (outnote) {$(s_i, s'_i, \tau)$\\contrastive pairs};
-
-\end{tikzpicture}
-}
-\caption{Overview of the \textsc{CausalFlow} pipeline for causal attribution and counterfactual repair. Given a failed execution trace, we identify causally responsible steps via interventional scoring (CRS), generate minimal counterfactual repairs, and validate repairs through re-execution or outcome prediction.}
-\label{fig:pipeline}
-\end{figure}
 
 
 \section{Related Work}
@@ -408,18 +356,18 @@ Table~\ref{tab:main_results} summarizes repair performance across all domains. \
 
 
 \begin{table}[t]
-\caption{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures token-level overlap between original and repaired steps (higher = smaller edits).}
+\caption{Repair performance across benchmarks. Repair Rate is computed over failed traces only.}
 \label{tab:main_results}
 \centering
 \begin{small}
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccc}
 \toprule
-Benchmark & Total & Passed & Failed & Repairs & Min. \\
+Benchmark & Total & Passed & Failed & Repairs \\
 \midrule
-GSM8K & 1319 & 989 & 330 & 173 (52.4\%) & 0.87 \\
-MBPP & 947 & 523 & 488 & 201 (41.2\%) & 0.82 \\
-SealQA Hard & 254 & 108 & 146 & 32 (21.9\%) & 0.79 \\
-MedBrowseComp & 484 & 149 & 335 & 149 (44.5\%) & 0.84 \\
+GSM8K & 1319 & 989 & 330 & 173 (52.4\%) \\
+MBPP & 947 & 523 & 488 & 201 (41.2\%) \\
+SealQA Hard & 254 & 108 & 146 & 32 (21.9\%) \\
+MedBrowseComp & 484 & 149 & 335 & 149 (44.5\%) \\
 \bottomrule
 \end{tabular}
 \end{small}
@@ -667,83 +615,6 @@ def _evaluate_repair_success(self, step_id, repaired_step):
 
 For tasks such as MBPP and GSM8K, deterministic execution ensures reliable validation. For browsing-based tasks, outcome prediction relies on LLM-based evaluation of the modified trace.
 
-\subsection{GSM8K Experimental Setup}
-
-\paragraph{Dataset.}
-We use the GSM8K dataset \cite{cobbe2021gsm8k} loaded from HuggingFace (\texttt{gsm8k}, \texttt{main} config, \texttt{test} split), comprising 1,319 grade-school math word problems.
-
-\paragraph{Model.}
-\texttt{google/gemini-2.0-flash-lite-001} with temperature 0.7.
-
-\paragraph{Agent Configuration.}
-The GSM8K agent (\texttt{GSM8KAgent}) decomposes problems into structured steps: initial reasoning, LLM-generated structured solution with reasoning and calculation steps, calculator tool calls for each operation, and final answer extraction.
-
-\paragraph{Tools.}
-Calculator tool for evaluating mathematical expressions using \texttt{MathReexecutor}.
-
-\paragraph{Prompts.}
-The solve prompt requests step-by-step solutions with: (1) brief reasoning about approach, (2) each calculation step with description, operation type, and exact expression, (3) the final numerical answer.
-
-\paragraph{Validation Method.}
-LLM-based outcome prediction. Gold answers are extracted as numeric values using \texttt{MathReexecutor.extract\_number()}.
-
-\subsection{MBPP Experimental Setup}
-
-\paragraph{Dataset.}
-We use the MBPP dataset \cite{austin2021program} loaded from HuggingFace (\texttt{Muennighoff/mbpp}), with train/test/validation/prompt splits merged. Total problems: 974.
-
-\paragraph{Model.}
-GPT-5 Chat with temperature 0.2 for code generation.
-
-\paragraph{Agent Configuration.}
-The MBPP agent reuses the HumanEval-style code generator (\texttt{HumanevalAgent}): reasoning step, LLM code generation tool call, generated Python code, Docker code execution tool call, test results, and final pass/fail answer.
-
-\paragraph{Tools.}
-\texttt{llm\_code\_generation} for generating Python code via LLM, and \texttt{docker\_code\_execution} for running code in isolated Docker containers with official test cases.
-
-\paragraph{Prompts.}
-Code generation prompt requests complete Python functions with exact function names, preserved signatures/docstrings, required imports, and no extra output.
-
-\paragraph{Validation Method.}
-Deterministic Docker-based execution using \texttt{HumanevalReexecutor}. Tests run in isolated containers; success requires all test assertions to pass.
-
-\subsection{SealQA Hard Experimental Setup}
-
-\paragraph{Dataset.}
-We use SealQA Hard \cite{pham2025sealqa} loaded from HuggingFace (\texttt{vtllms/sealqa}, \texttt{seal\_hard} config, \texttt{test} split), comprising 254 complex QA problems requiring web search.
-
-\paragraph{Model.}
-\texttt{google/gemini-3-flash-preview} with temperature 0.0 for solver, 0.3 for agent steps.
-
-\paragraph{Agent Configuration.}
-The BrowseComp agent (\texttt{BrowseCompAgent}) uses a structured tool policy with maximum 15 steps. Actions include: \texttt{search}, \texttt{open\_url}, \texttt{extract}, and \texttt{answer}. State tracking maintains gathered facts, search history, and page summaries.
-
-\paragraph{Tools.}
-\texttt{web\_search} via Serper API with caching, and \texttt{web\_fetch} for fetching and parsing web pages.
-
-\paragraph{Prompts.}
-Agent system prompt instructs the model to search for relevant information, open promising URLs, extract key facts, and provide answers when sufficient information is gathered. LLM-based grader compares extracted final answers against gold answers.
-
-\paragraph{Validation Method.}
-LLM-based grading. Web results are cached for reproducibility.
-
-\subsection{MedBrowseComp Experimental Setup}
-
-\paragraph{Dataset.}
-We use MedBrowseComp \cite{chen2025medbrowsecomp} loaded from HuggingFace (\texttt{AIM-Harvard/MedBrowseComp\_CUA}), comprising 484 medical QA problems.
-
-\paragraph{Model.}
-\texttt{google/gemini-3-flash-preview} with temperature 0.3 for agent steps.
-
-\paragraph{Agent Configuration.}
-Same as SealQA (\texttt{BrowseCompAgent}) with maximum 10 steps (reduced for medical domain).
-
-\paragraph{Tools.}
-Same as SealQA: \texttt{web\_search}, \texttt{web\_fetch}.
-
-\paragraph{Validation Method.}
-LLM-based grading using the same grader template as SealQA.
-
 \section{Extended Results}
 
 \subsection{Per-Model Breakdown}
@@ -770,48 +641,23 @@ Table~\ref{tab:per_model} provides a breakdown of repair performance by base mod
 
 These results indicate that repair effectiveness is influenced more by task structure than by the specific base model.
 
-\subsection{Dataset and Trace Statistics}
-
-Table~\ref{tab:dataset_stats} provides detailed statistics for each benchmark, including baseline accuracy and repair outcomes.
-
-\begin{table}[h]
-  \caption{Dataset and trace statistics. \textbf{Total / Avg.} row shows sums for counts and macro-averages for rates. Fix Rate = Fixed/Failed; Accuracy = Passed/Total.}
-  \label{tab:dataset_stats}
-  \centering
-  \begin{small}
-    \begin{tabular}{lcccccc}
-      \toprule
-      Benchmark & Total & Passed & Failed & Fixed & Fix Rate & Accuracy \\
-      \midrule
-      GSM8K & 1319 & 989 & 330 & 173 & 52.4\% & 75.0\% \\
-      MBPP & 947 & 523 & 488 & 201 & 41.2\% & 55.2\% \\
-      SealQA Hard & 254 & 108 & 146 & 32 & 21.9\% & 42.5\% \\
-      MedBrowseComp & 484 & 149 & 335 & 149 & 44.5\% & 30.8\% \\
-      \midrule
-      \textbf{Total / Avg.} & 3004 & 1769 & 1299 & 555 & 40.0\% & 50.8\% \\
-      \bottomrule
-    \end{tabular}
-  \end{small}
-\end{table}
-
 \subsection{Skill Group Details}
 
-Causal clustering reveals domain-specific skill categories. The following skill categories organize failure patterns for targeted debugging and potential curriculum learning. Category counts are derived from clustering causal steps using LLM-based skill labeling.
+Causal clustering reveals domain-specific skill categories.
 
-\paragraph{GSM8K Categories (16):}
+\paragraph{GSM8K Skills (16 groups):}
 Basic arithmetic, multi-digit multiplication, division with remainders, unit conversion, percentage calculation, ratio and proportion, multi-step planning, constraint satisfaction, word problem parsing, variable tracking, comparison operations, time calculations, money calculations, distance/rate/time reasoning, combinatorics basics, and equation setup.
 
-\paragraph{MBPP Categories (12):}
-Task decomposition and planning, algorithmic logic implementation, tool and API integration, code generation and syntactic integrity, requirement interpretation and mapping, data structure and type management, edge case and boundary handling, mathematical and geometric reasoning, regex and pattern synthesis, input parsing and verification, computational efficiency optimization, and unassigned/outlier failures.
+\paragraph{MBPP Skills (12 groups):}
+Loop construction, string manipulation, list operations, dictionary handling, recursion, edge-case handling, type conversion, mathematical operations, conditional logic, input validation, output formatting, and algorithm selection.
 
-\paragraph{SealQA Hard Categories (4):}
-Query precision and formulation, source selection and extraction efficiency, iterative search and refinement, and temporal/contextual grounding.
+\paragraph{SealQA Hard Skills (4 groups):}
+Query formulation, information retrieval, multi-source synthesis, and answer extraction.
 
-\paragraph{MedBrowseComp Categories (6):}
-Source relevance and authority assessment, iterative query refinement and narrowing, search query optimization and formulation, information extraction and parsing, redundancy and execution efficiency, and identifier/resource verification.
+\paragraph{MedBrowseComp Skills (6 groups):}
+Medical terminology understanding, symptom-condition mapping, treatment reasoning, drug interaction awareness, medical guideline interpretation, and clinical decision support.
 
-\paragraph{Using the Taxonomy.}
-These categories enable: (1) identification of systematic skill deficits in agent behavior, (2) targeted debugging of specific failure modes, and (3) potential curriculum-based training strategies that progress from simpler to more complex skills within each domain.
+These clusters demonstrate that causal attribution exposes interpretable and structured behavioral weaknesses rather than arbitrary error patterns.
 
 % \section{Extended Results}
 \subsection{Causal Attribution Reliability Metrics}
@@ -854,10 +700,10 @@ This measures how often the multi-agent validators corroborate the proposer’s 
 \toprule
 Benchmark & CRS Precision ($\uparrow$) & Consensus Rate ($\uparrow$) \\
 \midrule
-GSM8K & 0.72 & 0.65 \\
-MBPP & 0.84 & 0.72 \\
-SealQA Hard & 0.68 & 0.55 \\
-MedBrowseComp & 0.78 & 0.65 \\
+GSM8K & \textit{[fill]} & \textit{[fill]} \\
+MBPP & \textit{[fill]} & \textit{[fill]} \\
+SealQA Hard & \textit{[fill]} & \textit{[fill]} \\
+MedBrowseComp & \textit{[fill]} & \textit{[fill]} \\
 \bottomrule
 \end{tabular}
 \end{small}

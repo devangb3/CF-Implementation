@@ -109,7 +109,7 @@
 \printAffiliationsAndNotice{}  % leave empty for anonymous submission
 
 \begin{abstract}
-Training data for agentic capabilities is scarce and expensive to collect, as it requires multi-step reasoning traces with tool use that are difficult to generate synthetically. We introduce \textsc{CausalFlow}, a pipeline that automatically generates high-quality (failed\_trace, repaired\_trace) pairs from LLM agent failures for post-training. Our key insight is that counterfactual repairs provide contrastive supervision---models can learn both what went wrong and how to fix it from paired examples. \textsc{CausalFlow} applies causal inference to identify which steps caused failures, generates minimal repairs through counterfactual intervention, and validates data quality through multi-agent critique. The resulting training pairs include step-level causal annotations, minimal edit distances, and skill taxonomy labels for curriculum learning. Experiments across four benchmarks---GSM8K, MBPP, SealQA, and MedBrowseComp---demonstrate that \textsc{CausalFlow} generates 555 validated training pairs with average minimality scores of 0.79--0.87 and consensus scores of 0.85--0.91, establishing a scalable approach to synthesizing training data for agent post-training.
+High-quality training data for LLM agents remains scarce because it requires multi-step reasoning traces with tool use and environment interaction, while most synthetic pipelines produce only successful trajectories or uninformative failures. We introduce \textsc{CausalFlow}, a data generation framework that transforms agent failures into contrastive supervision by pairing each failed execution with a minimally edited counterfactual repair. \textsc{CausalFlow} formalizes an agent trace as a dependency DAG and performs step-level interventional attribution to identify failure-inducing steps via \emph{Causal Responsibility Scores} (CRS): a step is responsible if intervening on it and re-executing downstream steps flips the outcome to the correct answer. Conditioned on CRS-positive steps, we generate multiple repair candidates and select those that are both \emph{validated} (they succeed under re-execution or outcome verification) and \emph{minimal} (high token-overlap edits), then filter the resulting pairs using multi-agent critique to ensure training signal quality. Across four benchmarks spanning math (GSM8K), code (MBPP), web QA (SealQA Hard), and medical browsing (MedBrowseComp), \textsc{CausalFlow} converts 42.7\% of failed runs (555/1299) into validated (failed\_trace, repaired\_trace) pairs, achieving minimality scores of 0.79--0.87 and consensus scores of 0.85--0.91. The generated dataset includes step-level causal annotations and skill taxonomy labels that support process supervision and curriculum learning, providing a scalable path for agent post-training from real failure traces.
 \end{abstract}
 
 \section{Introduction}
@@ -120,25 +120,27 @@ Current approaches to agent training face three key limitations. First, agentic 
 
 We propose a novel perspective: \emph{agent failures are a rich source of training data, not just evaluation artifacts}. Every failed execution, when paired with a targeted repair, becomes a contrastive training example. The key is identifying \emph{which} steps to repair and generating \emph{minimal} corrections that teach precise fixes rather than wholesale rewrites.
 
-We introduce \textsc{CausalFlow}, a pipeline for generating high-quality (failed\_trace, repaired\_trace) pairs from agent failures. Given a failed execution, \textsc{CausalFlow}:
+We introduce \textsc{CausalFlow}, a pipeline for generating high-quality contrastive training data from agent failures. Given a failed execution, \textsc{CausalFlow}:
 \begin{enumerate}
     \item Constructs a \textbf{causal graph} from explicit step dependencies
     \item Computes \textbf{Causal Responsibility Scores} (CRS) to identify which steps caused the failure
     \item Generates \textbf{minimal counterfactual repairs} that fix only the causal steps
-    \item Validates data quality through \textbf{multi-agent critique}
+    \item (Optionally) validates step-level causal annotations through \textbf{multi-agent critique}
 \end{enumerate}
 
 Our key insight is that counterfactual repairs provide contrastive supervision: models see both the incorrect reasoning and the corrected version for the same problem. This paired structure, combined with step-level causal annotations, enables more targeted learning than training on successful traces alone.
 
-We evaluate \textsc{CausalFlow} on four diverse benchmarks spanning mathematical reasoning (GSM8K), code generation (MBPP), question answering (SealQA Hard), and medical web browsing (MedBrowseComp). Our pipeline generates 555 validated training pairs with high minimality scores (0.79--0.87) and strong consensus validation (0.85--0.91). We also organize generated data by a skill taxonomy of 12--16 categories per domain, enabling curriculum-based training.
+We evaluate \textsc{CausalFlow} on four diverse benchmarks spanning mathematical reasoning (GSM8K), code generation (MBPP), question answering (SealQA Hard), and medical web browsing (MedBrowseComp), totaling over 3{,}000 problems. Our pipeline converts 42.7\% of failures into validated training pairs with high minimality scores (0.79--0.87) and, when critique is enabled, strong consensus validation of causal-step labels (0.85--0.91). We also organize generated data by a skill taxonomy of 12--16 categories per domain, enabling curriculum-based training.
 
 \paragraph{Contributions.} Our main contributions are:
 \begin{itemize}
-    \item A pipeline for automatically generating contrastive (failed, repaired) training pairs from agent execution failures
+    \item A pipeline for automatically generating contrastive (failed trace, repaired step) training pairs from agent execution failures (and repaired traces when deterministic re-execution is available)
     \item Step-level causal annotations via Causal Responsibility Scores (CRS) that identify exactly which steps to learn from
-    \item Quality-controlled data generation through minimality constraints and multi-agent consensus validation
-    \item Extensive experiments generating 555 training pairs across four benchmarks, with analysis of data quality metrics and skill taxonomies
+    \item Quality signals for generated data through minimality constraints and (optional) multi-agent consensus on causal attributions
+    \item Extensive experiments across over 3{,}000 problems converting 42.7\% of failures into validated training pairs, with analysis of data quality metrics and skill taxonomies
 \end{itemize}
+
+While our motivation is agent post-training, this work focuses on \emph{data generation and quality analysis}; evaluating downstream training improvements from \textsc{CausalFlow}-generated data is left for future work.
 
 
 \section{Related Work}
@@ -156,7 +158,7 @@ Causal inference provides tools for understanding interventional effects and cou
 Prior work has analyzed LLM errors through behavioral testing \cite{ribeiro2020beyond} or chain-of-thought analysis \cite{wei2022chain}. Self-debugging approaches \cite{chen2024teaching} have models fix their own errors but lack principled identification of which steps to fix. Our CRS-based approach provides formal grounding for identifying causal steps, enabling targeted repair generation rather than wholesale trace rewriting.
 
 \paragraph{Multi-Agent Critique Systems.}
-Using multiple LLM agents for verification and critique has shown promise for improving reliability \cite{du2023improving,liang2023encouraging}. We adapt multi-agent critique specifically for validating training data quality, using ensemble agreement to filter low-quality repairs and ensure generated pairs meet quality thresholds.
+Using multiple LLM agents for verification and critique has shown promise for improving reliability \cite{du2023improving,liang2023encouraging}. We adapt multi-agent critique to validate \emph{causal attribution claims} (i.e., whether a step identified by CRS is plausibly causally responsible), providing a consensus score that can be used as a quality signal for step-level causal annotations.
 \section{Preliminaries}
 
 \subsection{Agent Execution Traces}
@@ -173,6 +175,7 @@ The final step is always of type \texttt{final\_answer} and represents the agent
 \subsection{Causal Graphs from Traces}
 
 The dependencies $D_i$ naturally induce a directed acyclic graph (DAG) $G = (V, E)$ where $V = \{s_1, \ldots, s_n\}$ and $(s_j, s_i) \in E$ iff $j \in D_i$. This \emph{causal graph} represents the causal structure of the execution: $s_i$ causally depends on its ancestors in $G$.
+In many agent traces this structure is close to linear, but explicit dependencies still provide a principled way to scope local context and downstream effects during interventions, and they generalize to agents with branching tool use or explicit state.
 
 \begin{definition}[Causal Ancestors]
 For step $s_i$, the causal ancestors $\text{Anc}(s_i)$ are all steps reachable by following edges backwards from $s_i$. These are the steps that could potentially influence $s_i$.
@@ -206,7 +209,7 @@ where $\tau_{s_i \leftarrow s_i'}$ denotes the trace obtained by replacing $s_i$
 Intuitively, $\text{CRS}(s_i) = 1$ if fixing step $s_i$ (while propagating effects forward) leads to a successful outcome. This provides a binary measure of causal responsibility.
 
 \paragraph{Computing Interventions.}
-To compute $s_i'$, we prompt an LLM with the original step $s_i$, the trace context up to $s_i$, and feedback about the execution failure. The LLM generates a ``corrected'' version of the step. For reasoning steps, this corrects logical errors; for tool calls, this fixes incorrect arguments or tool selection.
+To compute $s_i'$, we prompt an LLM with the original step $s_i$, a small context window over its explicit dependencies (e.g., the most recent dependent steps), and feedback about the execution failure. The LLM generates a ``corrected'' version of the step. For reasoning steps, this corrects logical errors; for tool calls, this fixes incorrect arguments or tool selection.
 
 \paragraph{Re-execution.}
 After intervention on $s_i$, we re-execute the trace from step $i+1$ onwards. This can be done either:
@@ -224,11 +227,11 @@ After intervention on $s_i$, we re-execute the trace from step $i+1$ onwards. Th
    \STATE {\bfseries Input:} Failed trace $\tau = (s_1, \ldots, s_n)$, gold answer $a^*$
    \STATE {\bfseries Output:} CRS scores $\{\text{CRS}(s_i)\}_{i=1}^{n-1}$
    \FOR{$i = 1$ {\bfseries to} $n-1$}
-   \STATE $s_i' \leftarrow \text{GenerateIntervention}(s_i, \tau_{<i}, \text{feedback})$
-   \IF{$s_i' = s_i$}
-   \STATE $\text{CRS}(s_i) \leftarrow 0$ \COMMENT{No change proposed}
+   \STATE $s_i' \leftarrow \text{GenerateIntervention}(s_i, \text{DepContext}(s_i), \text{feedback})$
+   \IF{$s_i' = \varnothing$}
+   \STATE $\text{CRS}(s_i) \leftarrow 0$ \COMMENT{No intervention generated}
    \ELSE
-   \STATE $\tau' \leftarrow \text{ReExecute}(\tau, i, s_i')$
+   \STATE $\tau' \leftarrow \text{ReExecuteOrPredict}(\tau, i, s_i')$
    \STATE $\text{CRS}(s_i) \leftarrow \mathbb{I}[a(\tau') = a^*]$
    \ENDIF
    \ENDFOR
@@ -238,14 +241,15 @@ After intervention on $s_i$, we re-execute the trace from step $i+1$ onwards. Th
 
 \subsection{Generating Contrastive Training Pairs}
 
-For steps with $\text{CRS}(s_i) = 1$ (i.e., causally responsible steps), we generate \emph{counterfactual repairs}---minimal modifications that, combined with the original failed trace, form contrastive training pairs.
+For steps with $\text{CRS}(s_i) = 1$ (i.e., causally responsible steps), we generate \emph{counterfactual repairs}---minimal step-level modifications that, combined with the original failed trace, form contrastive training pairs. In domains where deterministic re-execution is available, we can additionally re-run the agent from the repaired step to obtain a repaired trace; otherwise we retain the repaired step and validate via outcome prediction.
 
 \paragraph{Minimality for Training Quality.}
 A key desideratum is that repairs should be \emph{minimal}: they should fix only the identified error without introducing unnecessary changes. Minimal repairs ensure models learn targeted corrections rather than wholesale rewrites, making the training signal more precise. We define minimality as:
 \begin{equation}
-    \text{Minimality}(s_i, s_i') = \frac{|\text{tokens}(s_i) \cap \text{tokens}(s_i')|}{|\text{tokens}(s_i) \cup \text{tokens}(s_i')|}
+    \text{Minimality}(s_i, s_i') =
+    \frac{m}{L}\left(1 - \tfrac{1}{2}\cdot\frac{\left|\;|x|-|y|\;\right|}{L}\right),
 \end{equation}
-measuring token overlap between original and repaired steps. Higher scores indicate smaller edits.
+where $x=\text{tokens}(s_i)$ and $y=\text{tokens}(s_i')$ are token \emph{sequences}, $L=\max(|x|,|y|)$, and $m=\sum_{k=1}^{\min(|x|,|y|)} \mathbb{I}[x_k = y_k]$ counts position-wise token matches. Higher scores indicate smaller edits.
 
 \paragraph{Repair Generation.}
 We generate multiple repair proposals per causal step using temperature sampling, then rank by minimality. The repair prompt emphasizes:
@@ -259,39 +263,39 @@ Each repair is validated by re-execution (deterministic) or outcome prediction (
 
 \subsection{Validating Training Data Quality}
 
-To ensure high-quality training data, we employ a multi-agent critique system. Single-LLM repairs may introduce new errors or produce low-quality corrections; ensemble agreement filters out problematic training pairs.
+To improve the robustness of step-level causal annotations, we employ a multi-agent critique system that critiques \emph{causal attribution claims} (not the repairs themselves). Ensemble agreement provides a quality signal that can be used to retain only high-confidence causal steps.
 
 Our system uses three agents:
 \begin{itemize}
-    \item \textbf{Agent A (Proposer)}: The repair generator that produces training pair candidates
-    \item \textbf{Agent B (Critic 1)}: Reviews the repair for correctness and quality
-    \item \textbf{Agent C (Meta-Critic)}: Reviews both the repair and Agent B's critique
+    \item \textbf{Agent A (Proposer)}: The CRS-based attribution module that proposes causal steps
+    \item \textbf{Agent B (Critic 1)}: Critiques whether the proposed step is plausibly causal
+    \item \textbf{Agent C (Meta-Critic)}: Critiques both the proposal and Agent B's critique
 \end{itemize}
 
 Each critic agent outputs:
 \begin{itemize}
     \item Agreement: \texttt{AGREE}, \texttt{DISAGREE}, or \texttt{PARTIAL}
     \item Confidence: $[0, 1]$
-    \item Reasoning about repair quality
+    \item Reasoning about whether the step is causally responsible (plus optional alternative explanations and evidence strength)
 \end{itemize}
 
 We compute a \emph{consensus score} as a weighted average:
 \begin{equation}
-    \text{Consensus}(s_i) = \frac{1}{3}\left( \text{CRS}(s_i) + \sum_{j \in \{B,C\}} c_j \cdot a_j \right)
+    \text{Consensus}(s_i) = \frac{1}{3}\left( \text{CRS}(s_i) + \sum_{j \in \{B,C\}} c_j \cdot \mathbb{I}[\text{agree}_j] \right)
 \end{equation}
-where $a_j \in \{0, 0.5, 1\}$ encodes agreement and $c_j$ is confidence. Training pairs with $\text{Consensus}(s_i) \geq 0.5$ are included in the final dataset.
+where $\text{agree}_j$ is true when agent $j$ responds \texttt{AGREE} or \texttt{PARTIAL}, and $c_j$ is confidence. Steps with $\text{Consensus}(s_i) \geq 0.5$ are retained as confirmed causal steps.
 
 \subsection{Training Data Properties}
 
 The resulting training data has several properties valuable for agent post-training:
 
-\paragraph{Contrastive Pairs.} Each training example contains both the failed trace and the repaired trace for the same problem. This contrastive structure enables models to learn from explicit comparisons between incorrect and correct reasoning.
+\paragraph{Contrastive Pairs.} Each training example contains the failed trace and a minimally repaired version of a causally responsible step. When deterministic re-execution is available, we also include the repaired trace obtained by re-running the agent forward from the repaired step; otherwise the repaired trace is not materialized and we use outcome prediction for validation. This contrastive structure enables models to learn from explicit comparisons between incorrect and corrected behavior.
 
 \paragraph{Step-Level Annotations.} CRS provides binary labels indicating which steps caused the failure. This enables process supervision---models can receive feedback at individual steps, not just final outcomes.
 
 \paragraph{Minimal Edits.} By ranking repairs by minimality, training pairs teach targeted corrections. Models learn precise fixes rather than learning to completely rewrite traces.
 
-\paragraph{Skill Taxonomy.} We cluster causal steps by error patterns to organize training data into skill categories (e.g., arithmetic errors, loop logic bugs, query formulation issues). This enables curriculum learning where models can be trained on specific skill deficits.
+\paragraph{Skill Taxonomy.} We cluster labeled causal steps by their error patterns to organize analysis (and optionally training data selection) into skill categories (e.g., arithmetic errors, loop logic bugs, query formulation issues). In our codebase this is implemented as a separate post-processing step over stored traces and analyses.
 
 
 \section{Experiments}
@@ -327,8 +331,8 @@ For each benchmark, we run an appropriate LLM agent:
 We report:
 \begin{itemize}
     \item \textbf{Training Pair Generation Rate}: Fraction of failed executions converted into validated training pairs
-    \item \textbf{Minimality Score}: Average token overlap between original and repaired steps (higher = smaller edits)
-    \item \textbf{Consensus Score}: Average multi-agent agreement on repair quality
+    \item \textbf{Minimality Score}: Average minimality between original and repaired steps (higher = smaller edits)
+    \item \textbf{Consensus Score}: Average multi-agent consensus on whether CRS-identified steps are causally responsible
     \item \textbf{Skill Groups}: Number of distinct skill categories in generated data
 \end{itemize}
 
@@ -337,7 +341,7 @@ We report:
 \Cref{tab:main_results} presents training data generation results across all benchmarks.
 
 \begin{table}[h]
-  \caption{Training data generation results. \textsc{CausalFlow} generates 555 validated training pairs across four benchmarks with high quality scores.}
+  \caption{Training data generation results. \textsc{CausalFlow} converts 42.7\% of failures into validated training pairs across four benchmarks.}
   \label{tab:main_results}
   \centering
   \begin{small}
@@ -358,7 +362,7 @@ We report:
   \end{small}
 \end{table}
 
-\textsc{CausalFlow} achieves its highest generation rate on GSM8K (52.4\%), where errors tend to be localized arithmetic or reasoning mistakes amenable to minimal repair. GSM8K also achieves the highest quality scores (0.87 minimality, 0.91 consensus). The lowest rate is on SealQA Hard (21.9\%), where failures often involve information retrieval gaps that cannot be fixed by modifying reasoning steps alone.
+\textsc{CausalFlow} achieves its highest generation rate on GSM8K (52.4\%), where errors tend to be localized arithmetic or reasoning mistakes amenable to minimal repair. GSM8K also achieves the highest quality scores (0.87 minimality, 0.91 causal-label consensus). The lowest rate is on SealQA Hard (21.9\%), where failures often involve information retrieval gaps that cannot be fixed by modifying reasoning steps alone.
 
 \paragraph{Training Pair Characteristics.}
 Generated training pairs exhibit several patterns:
@@ -409,7 +413,7 @@ def is_prime(n):
 \subsection{Ablation Studies}
 
 \paragraph{Multi-Agent Critique for Data Quality.}
-Removing multi-agent critique and relying solely on CRS decreases average consensus scores by 23\%. The critique system filters low-quality repairs where the LLM proposes changes that technically fix the issue but introduce other problems or provide poor training signal.
+Removing multi-agent critique and relying solely on CRS decreases average consensus scores by 23\%. The critique signal serves as a quality measure for step-level causal annotations by filtering out weaker causal claims.
 
 \paragraph{Minimality Constraint.}
 Without minimality ranking, repairs average 3.2$\times$ more token changes. While these ``heavy'' repairs still lead to correct answers, they provide weaker training signal---models learn to rewrite traces rather than make targeted fixes. The minimality constraint ensures training pairs teach precise corrections.
@@ -456,7 +460,7 @@ The contrastive training pairs generated by \textsc{CausalFlow} enable several t
 \paragraph{Limitations.}
 \textsc{CausalFlow} has several limitations:
 \begin{itemize}
-    \item \textbf{Repair quality}: LLM-generated repairs may not always represent optimal fixes; multi-agent critique mitigates but does not eliminate this
+    \item \textbf{Repair quality}: LLM-generated repairs may not always represent optimal fixes; we validate repairs via deterministic re-execution when available or LLM-based outcome prediction otherwise
     \item \textbf{Generation costs}: Computing CRS requires re-running (parts of) traces, which can be expensive for complex agents
     \item \textbf{Retrieval failures}: When failures stem from information not being retrievable (vs.\ reasoning errors), useful training pairs cannot be generated
     \item \textbf{Coverage}: Not all agent failures can be converted to training pairs; some require architectural changes rather than step repairs
@@ -468,7 +472,7 @@ Promising directions include: (1) training agents on \textsc{CausalFlow}-generat
 
 \section{Conclusion}
 
-We presented \textsc{CausalFlow}, a pipeline for generating high-quality contrastive training data from LLM agent failures. By applying causal inference to identify which steps caused failures and generating minimal counterfactual repairs, \textsc{CausalFlow} transforms agent failures into (failed\_trace, repaired\_trace) training pairs. Our multi-agent critique system ensures data quality through ensemble validation. Experiments on four benchmarks demonstrate that \textsc{CausalFlow} generates 555 validated training pairs with high minimality (0.79--0.87) and consensus (0.85--0.91) scores. The generated data includes step-level causal annotations and skill taxonomy labels, enabling process supervision and curriculum learning. We believe automated generation of contrastive training data from failures is a promising direction for scalable agent post-training.
+We presented \textsc{CausalFlow}, a pipeline for generating high-quality contrastive training data from LLM agent failures. By applying causal inference to identify which steps caused failures and generating minimal counterfactual repairs, \textsc{CausalFlow} transforms agent failures into (failed trace, repaired step) training pairs (and repaired traces when deterministic re-execution is available). Our multi-agent critique system provides an ensemble-based quality signal for step-level causal annotations. Experiments on four benchmarks (over 3{,}000 total problems) demonstrate that \textsc{CausalFlow} converts 42.7\% of failures into validated training pairs with high minimality (0.79--0.87) and, when critique is enabled, high consensus (0.85--0.91) on causal-step labels. The dataset includes step-level causal annotations, and we additionally derive skill taxonomies for curriculum learning via post-processing. We believe automated generation of contrastive training data from failures is a promising direction for scalable agent post-training.
 
 
 \section*{Impact Statement}
@@ -544,13 +548,14 @@ Training pairs are validated through either deterministic re-execution (when an 
 
 \begin{verbatim}
 def _evaluate_repair_success(self, step_id, repaired_step):
-    if self.reexecutor is not None:
-        # Deterministic validation
-        new_trace = self.reexecutor.execute(repaired_step)
-        return new_trace.outcome == "success"
-    else:
-        # LLM prediction
-        return self._predict_outcome(repaired_step)
+    if self.reexecutor is None:
+        # LLM-based outcome prediction (no repaired trace available)
+        return self._llm_predict_outcome(step_id, repaired_step)
+
+    # Deterministic validation: re-run from the repaired step forward
+    history = steps_before(step_id) + [repaired_step]
+    new_trace = self.reexecutor.run_remaining_steps(history)
+    return new_trace.success
 \end{verbatim}
 
 Only pairs where the repair leads to successful execution are included in the final training dataset.

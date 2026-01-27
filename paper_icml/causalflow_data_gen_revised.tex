@@ -186,7 +186,7 @@ We introduce \textsc{CausalFlow}, a pipeline for generating high-quality contras
 \label{fig:pipeline}
 \end{figure}
 
-Our key insight is that counterfactual repairs provide contrastive supervision: models see both the incorrect reasoning and the corrected version for the same problem. This paired structure, combined with step-level causal annotations, enables more targeted learning than training on successful traces alone. \Cref{fig:workflow} illustrates the complete pipeline.
+Our key insight is that counterfactual repairs provide contrastive supervision: models see both the incorrect reasoning and the corrected version for the same problem. This paired structure, combined with step-level causal annotations, enables more targeted learning than training on successful traces alone. \Cref{fig:pipeline} illustrates the complete pipeline.
 
 We evaluate \textsc{CausalFlow} on four diverse benchmarks spanning mathematical reasoning (GSM8K), code generation (MBPP), question answering (SealQA Hard), and medical web browsing (MedBrowseComp), totaling over 3{,}000 problems. Our pipeline converts 42.7\% of failures into validated training pairs with high minimality scores (0.79--0.87). We also organize generated data by a skill taxonomy of 12--16 categories per domain, enabling curriculum-based training.
 

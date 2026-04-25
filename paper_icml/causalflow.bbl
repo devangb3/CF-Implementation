@@ -1,4 +1,4 @@
-\begin{thebibliography}{26}
+\begin{thebibliography}{34}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -39,11 +39,15 @@ Cobbe, K., Kosaraju, V., Bavarian, M., Chen, M., Jun, H., Kaiser, L., Plappert,
 \newblock Training verifiers to solve math word problems.
 \newblock \emph{arXiv preprint arXiv:2110.14168}, 2021.
 
-\bibitem[Geiger et~al.(2021)Geiger, Lu, Icard, and Potts]{geiger2023causal}
-Geiger, A., Lu, H., Icard, T., and Potts, C.
-\newblock Causal abstractions of neural networks.
-\newblock In \emph{Advances in Neural Information Processing Systems},
-  volume~34, 2021.
+\bibitem[Geiger et~al.(2025)Geiger, Ibeling, Zur, Chaudhary, Chauhan, Huang,
+  Arora, Wu, Goodman, Potts, and Icard]{geiger2025causalabstraction}
+Geiger, A., Ibeling, D., Zur, A., Chaudhary, M., Chauhan, S., Huang, J., Arora,
+  A., Wu, Z., Goodman, N., Potts, C., and Icard, T.
+\newblock Causal abstraction: A theoretical foundation for mechanistic
+  interpretability.
+\newblock \emph{Journal of Machine Learning Research}, 26\penalty0
+  (83):\penalty0 1--64, 2025.
+\newblock URL \url{http://jmlr.org/papers/v26/23-0058.html}.
 
 \bibitem[Gou et~al.(2024)Gou, Shao, Gong, Shen, Yang, Duan, and
   Chen]{gou2024critic}
@@ -51,6 +55,17 @@ Gou, Z., Shao, Z., Gong, Y., Shen, Y., Yang, Y., Duan, N., and Chen, W.
 \newblock {CRITIC}: Large language models can self-correct with
   tool-interactive critiquing.
 \newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Guo et~al.(2024)Guo, Cheng, Wang, Liang, Qin, Li, Liu, Sun, and
+  Liu]{guo2024stabletoolbench}
+Guo, Z., Cheng, S., Wang, H., Liang, S., Qin, Y., Li, P., Liu, Z., Sun, M., and
+  Liu, Y.
+\newblock Stabletoolbench: Towards stable large-scale benchmarking on tool
+  learning of large language models.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  ACL 2024}, pp.\  11143--11156, 2024.
+\newblock \doi{10.18653/v1/2024.findings-acl.664}.
+\newblock URL \url{https://aclanthology.org/2024.findings-acl.664/}.
 
 \bibitem[Halpern \& Pearl(2005)Halpern and Pearl]{halpern2005causes}
 Halpern, J.~Y. and Pearl, J.
@@ -65,6 +80,12 @@ Hong, J., Lee, N., and Thorne, J.
 \newblock In \emph{Proceedings of the 2024 Conference on Empirical Methods in
   Natural Language Processing}, pp.\  11170--11189, 2024.
 
+\bibitem[Kaufmann et~al.(2023)Kaufmann, Weng, Bengs, and
+  H{\"u}llermeier]{kaufmann2023rlhfsurvey}
+Kaufmann, T., Weng, P., Bengs, V., and H{\"u}llermeier, E.
+\newblock A survey of reinforcement learning from human feedback.
+\newblock \emph{arXiv preprint arXiv:2312.14925}, 2023.
+
 \bibitem[K{\i}c{\i}man et~al.(2024)K{\i}c{\i}man, Ness, Sharma, and
   Tan]{kiciman2024causalllm}
 K{\i}c{\i}man, E., Ness, R., Sharma, A., and Tan, C.
@@ -72,12 +93,34 @@ K{\i}c{\i}man, E., Ness, R., Sharma, A., and Tan, C.
   for causality.
 \newblock \emph{Transactions on Machine Learning Research}, 2024.
 
+\bibitem[Liang et~al.(2024)Liang, He, Jiao, Wang, Wang, Wang, Yang, Shi, and
+  Tu]{liang2024mad}
+Liang, T., He, Z., Jiao, W., Wang, X., Wang, Y., Wang, R., Yang, Y., Shi, S.,
+  and Tu, Z.
+\newblock Encouraging divergent thinking in large language models through
+  multi-agent debate.
+\newblock In \emph{Proceedings of the 2024 Conference on Empirical Methods in
+  Natural Language Processing}, pp.\  17889--17904, 2024.
+\newblock \doi{10.18653/v1/2024.emnlp-main.992}.
+\newblock URL \url{https://aclanthology.org/2024.emnlp-main.992/}.
+
 \bibitem[Lightman et~al.(2024)Lightman, Kosaraju, Burda, Edwards, Baker, Lee,
   Leike, Schulman, Sutskever, and Cobbe]{lightman2024verify}
 Lightman, H., Kosaraju, V., Burda, Y., Edwards, H., Baker, B., Lee, T., Leike,
   J., Schulman, J., Sutskever, I., and Cobbe, K.
 \newblock Let's verify step by step.
 \newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Liu et~al.(2024)Liu, Yu, Zhang, Xu, Lei, Lai, Gu, Ding, Men, Yang,
+  Zhang, Deng, Zeng, Du, Zhang, Shen, Zhang, Su, Sun, Huang, Dong, and
+  Tang]{liu2024agentbench}
+Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men,
+  K., Yang, K., Zhang, S., Deng, X., Zeng, A., Du, Z., Zhang, C., Shen, S.,
+  Zhang, T., Su, Y., Sun, H., Huang, M., Dong, Y., and Tang, J.
+\newblock Agentbench: Evaluating {LLM}s as agents.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=zAdUB0aCTQ}.
+\newblock arXiv:2308.03688.
 
 \bibitem[Madaan et~al.(2023)Madaan, Tandon, Gupta, Hallinan, Gao, Wiegreffe,
   Alon, Dziri, Prabhumoye, Yang, Gupta, Majumder, Hermann, Welleck,
@@ -94,6 +137,13 @@ Meng, K., Bau, D., Andonian, A., and Belinkov, Y.
 \newblock Locating and editing factual associations in {GPT}.
 \newblock In \emph{Advances in Neural Information Processing Systems},
   volume~35, 2022.
+
+\bibitem[Meng et~al.(2023)Meng, Sharma, Andonian, Belinkov, and
+  Bau]{meng2023memit}
+Meng, K., Sharma, A.~S., Andonian, A.~J., Belinkov, Y., and Bau, D.
+\newblock Mass-editing memory in a transformer.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+\newblock URL \url{https://openreview.net/forum?id=MkbcAHIYgyS}.
 
 \bibitem[Nye et~al.(2022)Nye, Andreassen, Gur-Ari, Michalewski, Austin, Bieber,
   Dohan, Lewkowycz, Bosma, Luan, Sutton, and Odena]{nye2022scratchpad}
@@ -158,6 +208,14 @@ Uesato, J., Kushman, N., Kumar, R., Song, F., Siegel, N., Wang, L., Creswell,
 \newblock Solving math word problems with process- and outcome-based feedback.
 \newblock \emph{arXiv preprint arXiv:2211.14275}, 2022.
 
+\bibitem[Wang et~al.(2024)Wang, Xie, Jiang, Mandlekar, Xiao, Zhu, Fan, and
+  Anandkumar]{wang2024voyager}
+Wang, G., Xie, Y., Jiang, Y., Mandlekar, A., Xiao, C., Zhu, Y., Fan, L., and
+  Anandkumar, A.
+\newblock Voyager: An open-ended embodied agent with large language models.
+\newblock \emph{Transactions on Machine Learning Research}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=ehfRiF0R3a}.
+
 \bibitem[Yang et~al.(2024)Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and
   Press]{yang2024sweagent}
 Yang, J., Jimenez, C.~E., Wettig, A., Lieret, K., Yao, S., Narasimhan, K., and
@@ -191,10 +249,25 @@ Yuan, Z., Yuan, H., Tan, C., Wang, W., Huang, S., and Huang, F.
 \newblock In \emph{Advances in Neural Information Processing Systems},
   volume~36, 2023.
 
+\bibitem[Zhang et~al.(2025)Zhang, Shi, Gu, You, Zhang, Gan, Yuan, and
+  Huang]{zhang2025graphtracer}
+Zhang, H., Shi, Y., Gu, X., You, H., Zhang, Z., Gan, L., Yuan, Y., and Huang,
+  J.
+\newblock Graphtracer: Graph-guided failure tracing in {LLM} agents for robust
+  multi-turn deep search.
+\newblock \emph{arXiv preprint arXiv:2510.10581}, 2025.
+
 \bibitem[Zhang et~al.(2024)Zhang, Hosseini, Bansal, Kazemi, Kumar, and
   Agarwal]{zhang2024process}
 Zhang, L., Hosseini, A., Bansal, H., Kazemi, M., Kumar, A., and Agarwal, R.
 \newblock Generative verifiers: Reward modeling as next-token prediction.
 \newblock \emph{arXiv preprint arXiv:2408.15240}, 2024.
+
+\bibitem[Zhou et~al.(2023)Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk,
+  Fried, Alon, and Neubig]{zhou2023webarena}
+Zhou, S., Xu, F.~F., Zhu, H., Zhou, X., Lo, R., Sridhar, A., Cheng, X., Ou, T.,
+  Bisk, Y., Fried, D., Alon, U., and Neubig, G.
+\newblock Webarena: A realistic web environment for building autonomous agents.
+\newblock \emph{arXiv preprint arXiv:2307.13854}, 2023.
 
 \end{thebibliography}

@@ -120,9 +120,9 @@ Large language model (LLM) agents frequently fail on multi-step tasks involving 
 
 \section{Introduction}
 
-Large language model (LLM) agents execute complex multi-step procedures involving reasoning, tool invocation, and environment interaction. When such executions fail, supervision is typically restricted to outcome-level feedback (e.g., final answer correctness), leaving ambiguous which intermediate decision caused the failure. This ambiguity limits both reliability and learning: without principled credit assignment over execution traces, failures cannot be systematically repaired or converted into structured supervision.
+Large language model (LLM) agents execute complex multi-step procedures involving reasoning, tool invocation, and environment interaction \citep{liu2024agentbench, zhou2023webarena, guo2024stabletoolbench, wang2024voyager, yao2022react}. When such executions fail, supervision is typically restricted to outcome-level feedback (e.g., final answer correctness), leaving ambiguous which intermediate decision caused the failure \citep{lightman2024verify}. This ambiguity limits both reliability and learning: without principled credit assignment over execution traces, failures cannot be systematically repaired or converted into structured supervision.
 
-Prior approaches address agent failures through heuristic retries, critique-driven rewriting, or full solution regeneration. While effective in some cases, these strategies do not explicitly test causal responsibility within structured traces. As a result, they neither isolate the failure-inducing step nor guarantee that repairs correspond to minimal counterfactual corrections.
+Prior approaches address agent failures through heuristic retries, critique-driven rewriting, or full solution regeneration \citep{shinn2023reflexion, madaan2023selfrefine, yao2023tree, gou2024critic, chen2024selfdebugging, yang2024sweagent}. While effective in some cases, these strategies do not explicitly test causal responsibility within structured traces. As a result, they neither isolate the failure-inducing step nor guarantee that repairs correspond to minimal counterfactual corrections.
 
 We introduce \textbf{CausalFlow}, a framework for interventional analysis and counterfactual repair of multi-step agent executions. CausalFlow models an execution trace as a directed acyclic graph induced by explicit step dependencies. Given a failed trace, it performs step-level counterfactual interventions: replacing a candidate step and re-executing downstream computation to test whether the final outcome changes. This defines a \emph{Causal Responsibility Score (CRS)}, identifying steps whose intervention flips failure to success.
 
@@ -194,7 +194,7 @@ Our contributions are:
 
 \section{Related Work}
 
-A large body of recent work improves multi-step LLM agents through iterative refinement, self-reflection, and tool-assisted repair mechanisms. Reflexion introduces verbal reinforcement learning where agents critique prior outputs and store reflective feedback for future attempts \citep{shinn2023reflexion}. Self-Refine proposes iterative generation with model-produced feedback to improve responses without additional supervision \citep{madaan2023selfrefine}. ReAct interleaves reasoning traces with tool calls to enable interactive problem solving \citep{yao2022react}, while Tree-of-Thoughts expands reasoning through structured search over intermediate steps \citep{yao2023tree}. CRITIC incorporates external tools to validate and revise model outputs \citep{gou2024critic}, and recent self-debugging approaches enable models to iteratively repair generated code using execution feedback \citep{chen2024selfdebugging}. Agentic systems such as SWE-agent further scale iterative debugging to large software repositories \citep{yang2024sweagent}. Although these methods improve reliability through critique loops, search, or execution feedback, they generally rely on heuristic refinement or full regeneration rather than explicitly identifying and validating the causally responsible step via counterfactual intervention. In parallel, a growing literature demonstrates that supervising intermediate reasoning steps can significantly outperform outcome-only training. Scratchpad supervision encourages models to externalize intermediate computations \citep{nye2022scratchpad}, while process-based reward modeling shows that rewarding correct reasoning steps yields stronger performance and improved interpretability compared to final-answer supervision \citep{uesato2022process}. Large-scale datasets such as PRM800K provide human-labeled step-level reasoning traces to train process reward models \citep{lightman2024verify}, and subsequent work scales automated process verifiers and integrates process rewards with structured search and reinforcement-style training \citep{zhang2024process, setlur2024rewarding}. However, these approaches rely on curated annotations or learned verifiers rather than extracting supervision directly from naturally occurring failures. Alignment methods such as RLHF train reward models from human preference comparisons and optimize policies using reinforcement learning \citep{ouyang2022training}, and recent preference optimization frameworks such as Direct Preference Optimization (DPO) \citep{rafailov2023dpo}, Ranking-based Reward Learning (RRHF) \citep{yuan2023rrhf}, Odds-Ratio Preference Optimization (ORPO) \citep{hong2024orpo}, and offline RL approaches such as Implicit Language Q-Learning (ILQL) \citep{snell2023ilql} aim to improve credit assignment and stability without full RL pipelines. Nonetheless, preference signals are typically defined at the trajectory or response level, leaving ambiguity about which intermediate step caused failure. Finally, causal intervention techniques have been applied to analyze and edit internal model behavior, including causal tracing and targeted model editing in transformers \citep{meng2022rome}, investigations into the extent of causal reasoning capabilities in LLMs \citep{chi2024causal, kiciman2024causalllm}, and formal frameworks for causal abstraction in neural networks \citep{geiger2023causal}. CausalFlow differs from these prior directions by operationalizing interventional analysis over explicit execution traces: it models dependency-aware step graphs, performs counterfactual replacement with downstream re-execution, and validates minimal repairs via outcome flips, thereby transforming failed executions into structured contrastive supervision without requiring human step annotations or heuristic full-trace regeneration.
+A large body of recent work improves multi-step LLM agents through iterative refinement, self-reflection, and tool-assisted repair mechanisms. Reflexion introduces verbal reinforcement learning where agents critique prior outputs and store reflective feedback for future attempts \citep{shinn2023reflexion}. Self-Refine proposes iterative generation with model-produced feedback to improve responses without additional supervision \citep{madaan2023selfrefine}. ReAct interleaves reasoning traces with tool calls to enable interactive problem solving \citep{yao2022react}, while Tree-of-Thoughts expands reasoning through structured search over intermediate steps \citep{yao2023tree}, CRITIC incorporates external tools to validate and revise model outputs \citep{gou2024critic}, and recent self-debugging approaches enable models to iteratively repair generated code using execution feedback \citep{chen2024selfdebugging}. Agentic systems such as SWE-agent further scale iterative debugging to large software repositories \citep{yang2024sweagent}. Although these methods improve reliability through critique loops, search, or execution feedback, they generally rely on heuristic refinement or full regeneration rather than explicitly identifying and validating the causally responsible step via counterfactual intervention. In parallel, a growing literature demonstrates that supervising intermediate reasoning steps can significantly outperform outcome-only training. Scratchpad supervision encourages models to externalize intermediate computations \citep{nye2022scratchpad}, while process-based reward modeling shows that rewarding correct reasoning steps yields stronger performance and improved interpretability compared to final-answer supervision \citep{uesato2022process}. Large-scale datasets such as PRM800K provide human-labeled step-level reasoning traces to train process reward models \citep{lightman2024verify}, and subsequent work scales automated process verifiers and integrates process rewards with structured search and reinforcement-style training \citep{zhang2024process, setlur2024rewarding}. However, these approaches rely on curated annotations or learned verifiers rather than extracting supervision directly from naturally occurring failures. Alignment methods such as RLHF train reward models from human preference comparisons and optimize policies using reinforcement learning \citep{ouyang2022training, kaufmann2023rlhfsurvey}, and recent preference optimization frameworks such as Direct Preference Optimization (DPO) \citep{rafailov2023dpo}, Ranking-based Reward Learning (RRHF) \citep{yuan2023rrhf}, Odds-Ratio Preference Optimization (ORPO) \citep{hong2024orpo}, and offline RL approaches such as Implicit Language Q-Learning (ILQL) \citep{snell2023ilql} aim to improve credit assignment and stability without full RL pipelines. Nonetheless, preference signals are typically defined at the trajectory or response level, leaving ambiguity about which intermediate step caused failure. Finally, causal intervention techniques have been applied to analyze and edit internal model behavior, including causal tracing and targeted model editing in transformers \citep{meng2022rome, meng2023memit}, investigations into the extent of causal reasoning capabilities in LLMs \citep{chi2024causal, kiciman2024causalllm}, and formal frameworks for causal abstraction in neural networks \citep{geiger2025causalabstraction}. CausalFlow differs from these prior directions by operationalizing interventional analysis over explicit execution traces: it models dependency-aware step graphs, performs counterfactual replacement with downstream re-execution, and validates minimal repairs via outcome flips, thereby transforming failed executions into structured contrastive supervision without requiring human step annotations or heuristic full-trace regeneration.
 
 
 \section{Problem Setup}
@@ -213,7 +213,7 @@ where each step $s_t$ contains an action (e.g., reasoning token sequence or tool
 be a task-specific verifier indicating success or failure.
 
 \paragraph{Dependency structure.}
-Execution traces exhibit explicit step dependencies. A step may consume outputs produced by earlier steps, such as intermediate variables, tool responses, or retrieved information. We represent these dependencies as a directed acyclic graph (DAG)
+Execution traces exhibit explicit step dependencies \citep{zhang2025graphtracer}. A step may consume outputs produced by earlier steps, such as intermediate variables, tool responses, or retrieved information. We represent these dependencies as a directed acyclic graph (DAG)
 \[
 G_\tau = (V, E),
 \]
@@ -332,7 +332,7 @@ Each validated repair yields a contrastive supervision pair $(s_i, s_i^\star)$.
 
 \subsection{Multi-Agent Validation}
 
-LLM-generated attributions may be noisy. To improve reliability, we introduce a three-agent validation system:
+LLM-generated attributions may be noisy. To improve reliability, we introduce a three-agent validation system \citep{liang2024mad}:
 
 \begin{itemize}
     \item \textbf{Agent A (Proposer)}: Computes CRS and proposes causal steps.
@@ -371,7 +371,7 @@ We evaluate \textsc{CausalFlow} across multiple domains to assess its ability to
 
 \subsection{Evaluation Objectives}
 
-Our empirical study is designed to answer four primary questions. First, how frequently can \textsc{CausalFlow} convert failed traces into successful executions through targeted intervention? Second, how precise are CRS-based causal attributions, particularly after multi-agent validation? Third, to what extent are generated repairs minimal and localized to the identified causal step? Finally, does deploy-time counterfactual repair measurably improve overall task accuracy compared to the baseline agent?
+Our empirical study is designed to answer four primary questions. First, how frequently can \textsc{CausalFlow} convert failed traces into successful executions through targeted intervention? Second, how precise are CRS-based causal attributions? Third, to what extent are generated repairs minimal and localized to the identified causal step? Finally, does deploy-time counterfactual repair measurably improve overall task accuracy compared to the baseline agent?
 
 \subsection{Benchmarks}
 
@@ -389,21 +389,18 @@ All agents produce structured execution traces with explicitly logged step types
 
 \subsection{Intervention Protocol}
 
-For each failed execution, we compute Causal Responsibility Scores by generating $K$ intervention proposals per step using temperature-based sampling. Unless otherwise specified, we set $K=3$. Intervened traces are evaluated through deterministic re-execution when a domain-specific executor is available, and through predictive outcome modeling otherwise. Multi-agent critique is applied to filter spurious causal attributions.
-
-For multi-agent validation, we retain causal steps with $\mathrm{Consensus}(s_i)\geq \tau_c$ and use $\tau_c=0.5$ unless otherwise noted.
-
+For each failed execution, we compute Causal Responsibility Scores by generating $K$ intervention proposals per step using temperature-based sampling. Unless otherwise specified, we set $K=3$. Intervened traces are evaluated through deterministic re-execution when a domain-specific executor is available, and through predictive outcome modeling otherwise. 
 
 \subsection{Evaluation Metrics}
 
-We report the following metrics. Repair Rate measures the fraction of failed traces that are successfully converted to correct executions. Post-Repair Accuracy measures overall task accuracy after deploy-time repair is applied. CRS Precision evaluates the reliability of identified causal steps. Minimality Score quantifies position-wise token similarity between original and repaired steps. Finally, Consensus Rate captures agreement among multi-agent validators.
+We report the following metrics. Repair Rate measures the fraction of failed traces that are successfully converted to correct executions. Post-Repair Accuracy measures overall task accuracy after deploy-time repair is applied. CRS Precision evaluates the reliability of identified causal steps. Minimality Score quantifies position-wise token similarity between original and repaired steps.
 
 
 \section{Results}
 
 We now present empirical results evaluating repair effectiveness, overall performance impact, attribution precision, repair characteristics, and cross-domain behavior patterns across benchmarks.
 
-\subsection{Main Repair Performance (RQ1)}
+\subsection{Main Repair Performance}
 
 Table~\ref{tab:main_results} summarizes repair performance across all domains. \textsc{CausalFlow} successfully converts between 21.9\% and 52.4\% of failed traces into validated successful executions, demonstrating that a substantial fraction of agent failures are attributable to localized, causally responsible steps. Aggregated over all benchmarks, \textsc{CausalFlow} produces validated repairs for 555 out of 1299 failed executions (42.7\%).
 
@@ -412,39 +409,39 @@ Table~\ref{tab:main_results} summarizes repair performance across all domains. \
 \caption{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures position-wise token similarity between original and repaired steps (higher = smaller edits).}
 \label{tab:main_results}
 \centering
-\begin{small}
-\begin{tabular}{lccccc}
-\toprule
-Benchmark & Total & Passed & Failed & Repairs & Min. \\
-\midrule
-GSM8K & 1319 & 989 & 330 & 173 (52.4\%) & 0.87 \\
-MBPP & 947 & 523 & 488 & 201 (41.2\%) & 0.82 \\
-SealQA Hard & 254 & 108 & 146 & 32 (21.9\%) & 0.79 \\
-MedBrowseComp & 484 & 149 & 335 & 149 (44.5\%) & 0.84 \\
-\bottomrule
-\end{tabular}
-\end{small}
+\resizebox{\columnwidth}{!}{%
+    \begin{tabular}{lccccc}
+    \toprule
+    Benchmark & Total & Passed & Failed & Repairs & Min. \\
+    \midrule
+    GSM8K & 1319 & 989 & 330 & 173 (52.4\%) & 0.87 \\
+    MBPP & 947 & 523 & 488 & 201 (41.2\%) & 0.82 \\
+    SealQA Hard & 254 & 108 & 146 & 32 (21.9\%) & 0.79 \\
+    MedBrowseComp & 484 & 149 & 335 & 149 (44.5\%) & 0.84 \\
+    \bottomrule
+    \end{tabular}%
+}
 \end{table}
 
 GSM8K achieves the highest repair rate (52.4\%), indicating that over half of arithmetic reasoning failures can be corrected through localized intervention. Inspection of repaired traces reveals that many failures arise from incorrect intermediate calculations, missed subtraction steps, unit conversion mistakes, or failure to propagate prior results correctly. These errors are typically confined to a single reasoning or calculator step, making them highly amenable to causal intervention.
 
 MBPP exhibits a repair rate of 41.2\%. Successful repairs frequently correct boundary conditions, missing base cases, incorrect loop indices, improper conditional checks, and off-by-one errors. Notably, many failures in MBPP are not due to flawed overall program structure, but rather a single incorrect logical decision within otherwise valid code. This aligns with the hypothesis that many LLM-generated programs fail due to localized logic mistakes rather than complete algorithmic misunderstanding.
 
-SealQA Hard shows a lower repair rate (21.9\%), reflecting the structural difficulty of web-based question answering. A substantial portion of failures stem from retrieval gaps or incomplete information gathering rather than flawed reasoning per se. When missing information cannot be retrieved through modification of internal reasoning steps, local intervention cannot flip the final outcome. Nevertheless, nearly one-quarter of failures remain repairable, typically through improved query formulation or refinement of synthesis reasoning.
+SealQA Hard shows lower repair rate (21.9\%), reflecting the structural difficulty of web-based question answering. A substantial portion of failures stem from retrieval gaps or incomplete information gathering rather than flawed reasoning. When missing information cannot be retrieved through modification of internal reasoning steps, local intervention cannot flip the final outcome. Nevertheless, nearly a quarter of failures remain repairable, typically through improved query formulation or refinement of synthesis reasoning.
 
 MedBrowseComp achieves a repair rate of 44.5\%, indicating that many browsing-based medical reasoning failures are localized and correctable. Successful repairs often involve refining search queries, correcting medical term interpretation, or fixing reasoning transitions between retrieved information and final conclusions.
 
 Across all benchmarks, these results suggest that many agent failures are not systemic breakdowns of reasoning, but rather localized causal errors within multi-step traces.
 
-\subsection{Impact on Overall Accuracy (RQ4)}
+\subsection{Impact on Overall Accuracy}
 
 We next evaluate deploy-time repair by applying \textsc{CausalFlow} to failed traces prior to returning final outputs. Table~\ref{tab:accuracy} reports baseline and post-repair accuracy.
 
 \begin{table}[t]
-\caption{Baseline and post-repair accuracy across benchmarks.}
+\caption{Baseline agent accuracy vs accuracy after inference-time counterfactual repair using CausalFlow. Post-repair accuracy reflects applying graph-consistent causal intervention to failed traces without modifying model parameters. Structured step-level repair yields consistent improvements across domains.}
 \label{tab:accuracy}
 \centering
-\begin{small}
+\resizebox{\columnwidth}{!}{
 \begin{tabular}{lcc}
 \toprule
 Benchmark & Baseline Accuracy & Post-Repair Accuracy \\
@@ -455,7 +452,7 @@ SealQA Hard & 42.5\% & 55.1\% \\
 MedBrowseComp & 30.8\% & 61.6\% \\
 \bottomrule
 \end{tabular}
-\end{small}
+}
 \end{table}
 
 Counterfactual repair yields consistent improvements in overall task accuracy across all domains (\Cref{fig:results}). On GSM8K, accuracy increases from 75.0\% to 88.1\%, reflecting the correction of arithmetic and constraint-propagation errors. MBPP improves from 55.2\% to 76.4\%, demonstrating the effectiveness of targeted logic correction in program synthesis tasks.
@@ -467,11 +464,12 @@ Importantly, these gains are achieved without modifying model parameters. All im
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/results_combined.pdf}
-\caption{Left: Repair rate across benchmarks (percentage of failed traces successfully repaired). Right: Baseline vs.\ post-repair accuracy, showing consistent improvements across all domains without model parameter updates.}
+\caption{\textbf{Left:} Repair rate across benchmarks, measured as the percentage of failed execution traces converted to successful outcomes via graph-consistent counterfactual intervention. 
+\textbf{Right:} Baseline versus deploy-time post-repair accuracy after applying \textsc{CausalFlow} without parameter updates. Improvements across all domains indicate that a substantial fraction of agent errors are attributable to localized, causally responsible steps.}
 \label{fig:results}
 \end{figure*}
 
-\subsection{Minimality and Localization of Repairs (RQ3)}
+\subsection{Minimality and Localization of Repairs}
 
 We evaluate the extent to which repairs are minimal and localized. Across benchmarks, average minimality scores range from 0.79 to 0.87, indicating that successful repairs typically involve small token-level modifications rather than wholesale rewriting of traces.
 
@@ -497,12 +495,7 @@ We conduct ablation experiments to evaluate the contribution of key components.
 
 Increasing the number of intervention samples $K$ improves repair rates up to $K=3$, after which gains diminish relative to computational cost. This indicates that limited stochastic exploration is sufficient to identify most repairable failures.
 
-Removing multi-agent critique increases false-positive causal attributions and reduces repair precision, particularly in open-domain settings where reasoning ambiguity is higher. The critique mechanism therefore plays a crucial role in stabilizing attribution reliability.
-
 Eliminating minimality ranking results in larger, less interpretable edits, although overall repair rate remains similar. This suggests that minimality primarily enhances localization and interpretability rather than raw repair success probability.
-
-
-
 
 \section{Discussion}
 
@@ -586,6 +579,8 @@ Overall, we believe that advancing methods for structured failure diagnosis and 
 \newpage
 
 \appendix
+\section*{Appendix}
+
 % \onecolumn
 \section{Implementation Details}
 
@@ -846,7 +841,7 @@ Causal clustering reveals domain-specific skill categories. The following skill 
 Basic arithmetic, multi-digit multiplication, division with remainders, unit conversion, percentage calculation, ratio and proportion, multi-step planning, constraint satisfaction, word problem parsing, variable tracking, comparison operations, time calculations, money calculations, distance/rate/time reasoning, combinatorics basics, and equation setup.
 
 \paragraph{MBPP Categories (12):}
-Task decomposition and planning, algorithmic logic implementation, tool and API integration, code generation and syntactic integrity, requirement interpretation and mapping, data structure and type management, edge case and boundary handling, mathematical and geometric reasoning, regex and pattern synthesis, input parsing and verification, computational efficiency optimization, and unassigned/outlier failures.
+Task decomposition and planning, algorithmic logic implementation, tool and API integration, code generation and syntactic integrity, requirement interpretation and mapping, data structure and type management, edge case and boundary handling, mathematical and geometric reasoning, regex and pattern synthesis, input parsing and verification, computational efficiency optimization.
 
 \paragraph{SealQA Hard Categories (4):}
 Query precision and formulation, source selection and extraction efficiency, iterative search and refinement, and temporal/contextual grounding.
@@ -900,13 +895,7 @@ Then CRS Precision is
 \]
 where $\mathcal{F}$ is the set of failed traces.
 
-\paragraph{Consensus Rate.}
-For each candidate step $s_i$ evaluated in a failed trace, we compute a consensus score $\mathrm{Consensus}(s_i)\in[0,1]$ from the proposer and critics. We report the fraction of CRS-flagged steps that pass the consensus threshold:
-\[
-\mathrm{ConsRate} = 
-\frac{\sum_{\tau \in \mathcal{F}} |\{ i \in \mathcal{S}_{\mathrm{pred}}(\tau) : \mathrm{Consensus}(s_i)\ge \tau_c \}|}
-{\sum_{\tau \in \mathcal{F}} |\mathcal{S}_{\mathrm{pred}}(\tau)|}.
-\]
-This measures how often the multi-agent validators corroborate the proposer’s causal attributions.
+\subsection{Code and Reproducibility}
 
+The complete implementation of \textsc{CausalFlow}, including all agent configurations, causal attribution algorithms, repair generation modules, and evaluation scripts, is publicly available for reproducibility and further research. The codebase includes detailed documentation, example traces, and instructions for running experiments across all four benchmarks evaluated in this work. Access to the anonymized repository is provided at: \url{https://anonymous.4open.science/r/CausalFlow-6B2C}.
 \end{document}

@@ -15,6 +15,9 @@
 \global\let\hyper@last\relax 
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand*\HyPL@Entry[1]{}
+\citation{liu2024agentbench,zhou2023webarena,guo2024stabletoolbench,wang2024voyager,yao2022react}
+\citation{lightman2024verify}
+\citation{shinn2023reflexion,madaan2023selfrefine,yao2023tree,gou2024critic,chen2024selfdebugging,yang2024sweagent}
 \HyPL@Entry{0<</S/D>>}
 \@LN@col{1}
 \@LN@col{2}
@@ -29,26 +32,28 @@
 \citation{uesato2022process}
 \citation{lightman2024verify}
 \citation{zhang2024process,setlur2024rewarding}
-\citation{ouyang2022training}
+\citation{ouyang2022training,kaufmann2023rlhfsurvey}
 \citation{rafailov2023dpo}
 \citation{yuan2023rrhf}
 \citation{hong2024orpo}
 \citation{snell2023ilql}
-\citation{meng2022rome}
+\citation{meng2022rome,meng2023memit}
 \citation{chi2024causal,kiciman2024causalllm}
-\citation{geiger2023causal}
+\citation{geiger2025causalabstraction}
 \@LN@col{1}
 \@LN@col{2}
+\citation{zhang2025graphtracer}
 \citation{halpern2005causes}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:pipeline}{{1}{3}{Overview of the \textsc {CausalFlow} pipeline for causal attribution and counterfactual repair. Given a failed execution trace, we identify causally responsible steps via interventional scoring (CRS), generate minimal counterfactual repairs, and validate repairs through re-execution or outcome prediction.\relax }{figure.caption.1}{}}
 \newlabel{fig:pipeline@cref}{{[figure][1][]1}{[1][2][]3}}
 \@LN@col{1}
 \@LN@col{2}
+\citation{liang2024mad}
 \@LN@col{1}
+\@LN@col{2}
 \newlabel{alg:crs}{{1}{4}{Causal Responsibility Scoring\relax }{algorithm.1}{}}
 \newlabel{alg:crs@cref}{{[algorithm][1][]1}{[1][4][]4}}
-\@LN@col{2}
 \citation{cobbe2021gsm8k}
 \citation{austin2021program}
 \citation{pham2025sealqa}
@@ -59,9 +64,9 @@
 \newlabel{tab:main_results}{{1}{6}{Repair performance across benchmarks. Repair Rate is computed over failed traces only. Minimality measures position-wise token similarity between original and repaired steps (higher = smaller edits).\relax }{table.caption.2}{}}
 \newlabel{tab:main_results@cref}{{[table][1][]1}{[1][5][]6}}
 \@LN@col{2}
-\newlabel{tab:accuracy}{{2}{6}{Baseline and post-repair accuracy across benchmarks.\relax }{table.caption.3}{}}
+\newlabel{tab:accuracy}{{2}{6}{Baseline agent accuracy vs accuracy after inference-time counterfactual repair using CausalFlow. Post-repair accuracy reflects applying graph-consistent causal intervention to failed traces without modifying model parameters. Structured step-level repair yields consistent improvements across domains.\relax }{table.caption.3}{}}
 \newlabel{tab:accuracy@cref}{{[table][2][]2}{[1][6][]6}}
-\newlabel{fig:results}{{2}{7}{Left: Repair rate across benchmarks (percentage of failed traces successfully repaired). Right: Baseline vs.\ post-repair accuracy, showing consistent improvements across all domains without model parameter updates.\relax }{figure.caption.4}{}}
+\newlabel{fig:results}{{2}{7}{\textbf {Left:} Repair rate across benchmarks, measured as the percentage of failed execution traces converted to successful outcomes via graph-consistent counterfactual intervention. \textbf {Right:} Baseline versus deploy-time post-repair accuracy after applying \textsc {CausalFlow} without parameter updates. Improvements across all domains indicate that a substantial fraction of agent errors are attributable to localized, causally responsible steps.\relax }{figure.caption.4}{}}
 \newlabel{fig:results@cref}{{[figure][2][]2}{[1][6][]7}}
 \@LN@col{1}
 \@LN@col{2}
@@ -73,54 +78,62 @@
 \bibcite{chen2024selfdebugging}{{3}{2024}{{Chen et~al.}}{{Chen, Lin, Sch{\"a}rli, and Zhou}}}
 \bibcite{chi2024causal}{{4}{2024}{{Chi et~al.}}{{Chi, Li, et~al.}}}
 \bibcite{cobbe2021gsm8k}{{5}{2021}{{Cobbe et~al.}}{{Cobbe, Kosaraju, Bavarian, Chen, Jun, Kaiser, Plappert, Tworek, Hilton, Nakano, Hesse, and Schulman}}}
-\bibcite{geiger2023causal}{{6}{2021}{{Geiger et~al.}}{{Geiger, Lu, Icard, and Potts}}}
+\bibcite{geiger2025causalabstraction}{{6}{2025}{{Geiger et~al.}}{{Geiger, Ibeling, Zur, Chaudhary, Chauhan, Huang, Arora, Wu, Goodman, Potts, and Icard}}}
 \bibcite{gou2024critic}{{7}{2024}{{Gou et~al.}}{{Gou, Shao, Gong, Shen, Yang, Duan, and Chen}}}
-\bibcite{halpern2005causes}{{8}{2005}{{Halpern \& Pearl}}{{Halpern and Pearl}}}
-\bibcite{hong2024orpo}{{9}{2024}{{Hong et~al.}}{{Hong, Lee, and Thorne}}}
-\bibcite{kiciman2024causalllm}{{10}{2024}{{K{\i }c{\i }man et~al.}}{{K{\i }c{\i }man, Ness, Sharma, and Tan}}}
+\bibcite{guo2024stabletoolbench}{{8}{2024}{{Guo et~al.}}{{Guo, Cheng, Wang, Liang, Qin, Li, Liu, Sun, and Liu}}}
+\bibcite{halpern2005causes}{{9}{2005}{{Halpern \& Pearl}}{{Halpern and Pearl}}}
+\bibcite{hong2024orpo}{{10}{2024}{{Hong et~al.}}{{Hong, Lee, and Thorne}}}
 \@LN@col{1}
 \@LN@col{2}
-\bibcite{lightman2024verify}{{11}{2024}{{Lightman et~al.}}{{Lightman, Kosaraju, Burda, Edwards, Baker, Lee, Leike, Schulman, Sutskever, and Cobbe}}}
-\bibcite{madaan2023selfrefine}{{12}{2023}{{Madaan et~al.}}{{Madaan, Tandon, Gupta, Hallinan, Gao, Wiegreffe, Alon, Dziri, Prabhumoye, Yang, Gupta, Majumder, Hermann, Welleck, Yazdanbakhsh, and Clark}}}
-\bibcite{meng2022rome}{{13}{2022}{{Meng et~al.}}{{Meng, Bau, Andonian, and Belinkov}}}
-\bibcite{nye2022scratchpad}{{14}{2022}{{Nye et~al.}}{{Nye, Andreassen, Gur-Ari, Michalewski, Austin, Bieber, Dohan, Lewkowycz, Bosma, Luan, Sutton, and Odena}}}
-\bibcite{ouyang2022training}{{15}{2022}{{Ouyang et~al.}}{{Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin, Zhang, Agarwal, Slama, Ray, Schulman, Hilton, Kelton, Miller, Simens, Askell, Welinder, Christiano, Leike, and Lowe}}}
-\bibcite{pham2025sealqa}{{16}{2025}{{Pham et~al.}}{{Pham, Nguyen, Zunjare, Chen, Tseng, and Vu}}}
-\bibcite{rafailov2023dpo}{{17}{2023}{{Rafailov et~al.}}{{Rafailov, Sharma, Mitchell, Ermon, Manning, and Finn}}}
-\bibcite{setlur2024rewarding}{{18}{2024}{{Setlur et~al.}}{{Setlur, Garg, Geng, Garg, Smith, and Kumar}}}
-\bibcite{shinn2023reflexion}{{19}{2023}{{Shinn et~al.}}{{Shinn, Cassano, Gopinath, Narasimhan, and Yao}}}
-\bibcite{snell2023ilql}{{20}{2023}{{Snell et~al.}}{{Snell, Kostrikov, Su, Yang, and Levine}}}
-\bibcite{uesato2022process}{{21}{2022}{{Uesato et~al.}}{{Uesato, Kushman, Kumar, Song, Siegel, Wang, Creswell, Irving, and Higgins}}}
-\bibcite{yang2024sweagent}{{22}{2024}{{Yang et~al.}}{{Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and Press}}}
-\bibcite{yao2023tree}{{23}{2023{a}}{{Yao et~al.}}{{Yao, Yu, Zhao, Shafran, Griffiths, Cao, and Narasimhan}}}
-\bibcite{yao2022react}{{24}{2023{b}}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}}}
-\bibcite{yuan2023rrhf}{{25}{2023}{{Yuan et~al.}}{{Yuan, Yuan, Tan, Wang, Huang, and Huang}}}
-\bibcite{zhang2024process}{{26}{2024}{{Zhang et~al.}}{{Zhang, Hosseini, Bansal, Kazemi, Kumar, and Agarwal}}}
+\bibcite{kaufmann2023rlhfsurvey}{{11}{2023}{{Kaufmann et~al.}}{{Kaufmann, Weng, Bengs, and H{\"u}llermeier}}}
+\bibcite{kiciman2024causalllm}{{12}{2024}{{K{\i }c{\i }man et~al.}}{{K{\i }c{\i }man, Ness, Sharma, and Tan}}}
+\bibcite{liang2024mad}{{13}{2024}{{Liang et~al.}}{{Liang, He, Jiao, Wang, Wang, Wang, Yang, Shi, and Tu}}}
+\bibcite{lightman2024verify}{{14}{2024}{{Lightman et~al.}}{{Lightman, Kosaraju, Burda, Edwards, Baker, Lee, Leike, Schulman, Sutskever, and Cobbe}}}
+\bibcite{liu2024agentbench}{{15}{2024}{{Liu et~al.}}{{Liu, Yu, Zhang, Xu, Lei, Lai, Gu, Ding, Men, Yang, Zhang, Deng, Zeng, Du, Zhang, Shen, Zhang, Su, Sun, Huang, Dong, and Tang}}}
+\bibcite{madaan2023selfrefine}{{16}{2023}{{Madaan et~al.}}{{Madaan, Tandon, Gupta, Hallinan, Gao, Wiegreffe, Alon, Dziri, Prabhumoye, Yang, Gupta, Majumder, Hermann, Welleck, Yazdanbakhsh, and Clark}}}
+\bibcite{meng2022rome}{{17}{2022}{{Meng et~al.}}{{Meng, Bau, Andonian, and Belinkov}}}
+\bibcite{meng2023memit}{{18}{2023}{{Meng et~al.}}{{Meng, Sharma, Andonian, Belinkov, and Bau}}}
+\bibcite{nye2022scratchpad}{{19}{2022}{{Nye et~al.}}{{Nye, Andreassen, Gur-Ari, Michalewski, Austin, Bieber, Dohan, Lewkowycz, Bosma, Luan, Sutton, and Odena}}}
+\bibcite{ouyang2022training}{{20}{2022}{{Ouyang et~al.}}{{Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin, Zhang, Agarwal, Slama, Ray, Schulman, Hilton, Kelton, Miller, Simens, Askell, Welinder, Christiano, Leike, and Lowe}}}
+\bibcite{pham2025sealqa}{{21}{2025}{{Pham et~al.}}{{Pham, Nguyen, Zunjare, Chen, Tseng, and Vu}}}
+\bibcite{rafailov2023dpo}{{22}{2023}{{Rafailov et~al.}}{{Rafailov, Sharma, Mitchell, Ermon, Manning, and Finn}}}
+\bibcite{setlur2024rewarding}{{23}{2024}{{Setlur et~al.}}{{Setlur, Garg, Geng, Garg, Smith, and Kumar}}}
+\bibcite{shinn2023reflexion}{{24}{2023}{{Shinn et~al.}}{{Shinn, Cassano, Gopinath, Narasimhan, and Yao}}}
+\bibcite{snell2023ilql}{{25}{2023}{{Snell et~al.}}{{Snell, Kostrikov, Su, Yang, and Levine}}}
+\bibcite{uesato2022process}{{26}{2022}{{Uesato et~al.}}{{Uesato, Kushman, Kumar, Song, Siegel, Wang, Creswell, Irving, and Higgins}}}
+\bibcite{wang2024voyager}{{27}{2024}{{Wang et~al.}}{{Wang, Xie, Jiang, Mandlekar, Xiao, Zhu, Fan, and Anandkumar}}}
+\bibcite{yang2024sweagent}{{28}{2024}{{Yang et~al.}}{{Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and Press}}}
+\@LN@col{1}
+\@LN@col{2}
+\bibcite{yao2023tree}{{29}{2023{a}}{{Yao et~al.}}{{Yao, Yu, Zhao, Shafran, Griffiths, Cao, and Narasimhan}}}
+\bibcite{yao2022react}{{30}{2023{b}}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}}}
+\bibcite{yuan2023rrhf}{{31}{2023}{{Yuan et~al.}}{{Yuan, Yuan, Tan, Wang, Huang, and Huang}}}
+\bibcite{zhang2025graphtracer}{{32}{2025}{{Zhang et~al.}}{{Zhang, Shi, Gu, You, Zhang, Gan, Yuan, and Huang}}}
+\bibcite{zhang2024process}{{33}{2024}{{Zhang et~al.}}{{Zhang, Hosseini, Bansal, Kazemi, Kumar, and Agarwal}}}
+\bibcite{zhou2023webarena}{{34}{2023}{{Zhou et~al.}}{{Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk, Fried, Alon, and Neubig}}}
 \bibstyle{icml2026}
 \@LN@col{1}
 \@LN@col{2}
 \citation{cobbe2021gsm8k}
-\citation{austin2021program}
+\newlabel{fig:intervention_prompt}{{3}{12}{Structured prompt template used to generate minimal counterfactual interventions for a candidate step. Note that variables in brackets are dynamically populated during the repair generation phase.\relax }{figure.caption.8}{}}
+\newlabel{fig:intervention_prompt@cref}{{[figure][3][2147483647]3}{[1][11][]12}}
 \@LN@col{1}
 \@LN@col{2}
+\citation{austin2021program}
 \citation{pham2025sealqa}
 \citation{chen2025medbrowsecomp}
-\newlabel{fig:intervention_prompt}{{3}{12}{Structured prompt template used to generate minimal counterfactual interventions for a candidate step.\relax }{figure.caption.7}{}}
-\newlabel{fig:intervention_prompt@cref}{{[figure][3][2147483647]3}{[1][11][]12}}
-\newlabel{fig:causal_prompt_templates}{{4}{12}{Prompt used by CausalFlow for causal attribution.\relax }{figure.caption.8}{}}
-\newlabel{fig:causal_prompt_templates@cref}{{[figure][4][2147483647]4}{[1][11][]12}}
+\newlabel{fig:causal_prompt_templates}{{4}{13}{Prompt used by CausalFlow for causal attribution. The model is tasked with identifying if the current step is the root cause of the failure.\relax }{figure.caption.9}{}}
+\newlabel{fig:causal_prompt_templates@cref}{{[figure][4][2147483647]4}{[1][12][]13}}
 \@LN@col{1}
 \@LN@col{2}
-\newlabel{fig:repair_prompt_template}{{5}{13}{Representative prompt template used to generate minimally edited counterfactual repairs for a causally responsible step.\relax }{figure.caption.9}{}}
-\newlabel{fig:repair_prompt_template@cref}{{[figure][5][2147483647]5}{[1][11][]13}}
 \@LN@col{1}
-\newlabel{tab:per_model}{{3}{13}{Repair performance broken down by base model.\relax }{table.caption.10}{}}
-\newlabel{tab:per_model@cref}{{[table][3][2147483647]3}{[1][13][]13}}
+\newlabel{tab:per_model}{{3}{14}{Repair performance broken down by base model.\relax }{table.caption.10}{}}
+\newlabel{tab:per_model@cref}{{[table][3][2147483647]3}{[1][14][]14}}
+\newlabel{tab:dataset_stats}{{4}{14}{Dataset and trace statistics. \textbf {Total / Avg.} row shows sums for counts and macro-averages for rates. Accuracy = Passed/Total.\relax }{table.caption.11}{}}
+\newlabel{tab:dataset_stats@cref}{{[table][4][2147483647]4}{[1][14][]14}}
 \@LN@col{2}
-\newlabel{tab:dataset_stats}{{4}{13}{Dataset and trace statistics. \textbf {Total / Avg.} row shows sums for counts and macro-averages for rates. Accuracy = Passed/Total.\relax }{table.caption.11}{}}
-\newlabel{tab:dataset_stats@cref}{{[table][4][2147483647]4}{[1][13][]13}}
 \@LN@col{1}
-\newlabel{tab:attrib_metrics}{{5}{14}{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. \\ Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.\relax }{table.caption.12}{}}
-\newlabel{tab:attrib_metrics@cref}{{[table][5][2147483647]5}{[1][14][]14}}
+\newlabel{tab:attrib_metrics}{{5}{15}{Attribution-reliability metrics. CRS Precision measures how often CRS-flagged steps admit a validated outcome-flipping intervention. Consensus Rate measures the fraction of CRS-flagged steps retained after multi-agent validation. \\ Note: Multi-agent consensus was computed only for GSM8K because the other benchmarks have deterministic re-executors that provide definitive success/failure outcomes. GSM8K lacks a straightforward re-executor for mathematical reasoning, so we employ LLM-based outcome prediction with stronger judge models, where multi-agent consensus provides additional verification.\relax }{table.caption.12}{}}
+\newlabel{tab:attrib_metrics@cref}{{[table][5][2147483647]5}{[1][14][]15}}
 \@LN@col{2}
-\gdef \@abspage@last{14}
+\gdef \@abspage@last{15}

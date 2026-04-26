@@ -6,7 +6,13 @@ from trace_logger import TraceLogger, Step, StepType
 from causal_attribution import CausalAttribution
 from llm_client import LLMClient
 from text_processor import convert_text_to_jsonl
-from utils import extract_step_text, calculate_minimality_score
+from semantic_minimality import Embedder
+from utils import (
+    extract_step_text,
+    calculate_minimality_lex,
+    calculate_minimality_edit,
+    calculate_minimality_sem,
+)
 
 
 class Repair:
@@ -15,24 +21,45 @@ class Repair:
         step_id: int,
         original_step: Step,
         repaired_step: Step,
-        minimality_score: float,
+        minimality_lex: float,
         success_predicted: bool,
-        repaired_trace: Optional["TraceLogger"] = None
+        repaired_trace: Optional["TraceLogger"] = None,
+        minimality_edit: Optional[float] = None,
+        minimality_sem: Optional[float] = None,
+        original_text: Optional[str] = None,
+        repaired_text: Optional[str] = None,
+        proposal_idx: Optional[int] = None,
     ):
 
         self.step_id = step_id #The step being repaired
         self.original_step = original_step #The original (faulty) step
         self.repaired_step = repaired_step #The repaired step
-        self.minimality_score = minimality_score #Score indicating how minimal the edit is (0-1)
+        self.minimality_lex = minimality_lex #Lexical minimality
+        self.minimality_edit = minimality_edit #Normalized char-level Levenshtein minimality
+        self.minimality_sem = minimality_sem #Embedding-cosine minimality, in [0, 1]
         self.success_predicted = success_predicted #Whether this repair is predicted to succeed
         self.repaired_trace = repaired_trace #Full trace after applying repair (only for successful repairs with reexecutor)
+        self.original_text = original_text
+        self.repaired_text = repaired_text
+        self.proposal_idx = proposal_idx
+
+    @property
+    def minimality_score(self) -> float:
+        """Backward-compat alias for the paper-default lexical score."""
+        return self.minimality_lex
 
     def to_dict(self) -> Dict[str, Any]:
         result: Dict[str, Any] = {
             "step_id": self.step_id,
             "original_step": self.original_step.to_dict(),
             "repaired_step": self.repaired_step.to_dict(),
-            "minimality_score": self.minimality_score,
+            "minimality_score": self.minimality_lex,
+            "minimality_lex": self.minimality_lex,
+            "minimality_edit": self.minimality_edit,
+            "minimality_sem": self.minimality_sem,
+            "original_text": self.original_text,
+            "repaired_text": self.repaired_text,
+            "proposal_idx": self.proposal_idx,
             "success_predicted": self.success_predicted
         }
         # Include full repaired trace for successful repairs
@@ -47,7 +74,9 @@ class CounterfactualRepair:
         causal_attribution: CausalAttribution,
         llm_client: LLMClient,
         reexecutor: Optional[Any] = None,
-        execution_context: Optional[Dict[str, Any]] = None
+        execution_context: Optional[Dict[str, Any]] = None,
+        num_proposals: int = 3,
+        compute_semantic_minimality: bool = False,
     ):
 
         self.trace = trace #The failed execution trace
@@ -55,19 +84,25 @@ class CounterfactualRepair:
         self.llm_client = llm_client
         self.reexecutor = reexecutor #Optional reexecutor for deterministic repair evaluation
         self.execution_context = execution_context or {} #Context needed for execution (prompt, tests, entry_point, etc.)
+        self.num_proposals = num_proposals #Default K for proposal generation (paper default 3; ablation uses 5)
+        self.compute_semantic_minimality = compute_semantic_minimality #Whether to call the embedder per proposal
+        self._embedder: Optional[Embedder] = (
+            Embedder() if compute_semantic_minimality else None
+        )
 
         self.repairs: Dict[int, List[Repair]] = {}
 
     def generate_repairs(
         self,
         step_ids: List[int],
-        num_proposals: int = 3
+        num_proposals: Optional[int] = None,
     ) -> Dict[int, List[Repair]]:
 
+        k = num_proposals if num_proposals is not None else self.num_proposals
         for step_id in step_ids:
             self.repairs[step_id] = self._generate_repairs_for_step(
                 step_id,
-                num_proposals,
+                k,
                 self.trace.steps
             )
 
@@ -111,10 +146,20 @@ class CounterfactualRepair:
 
                 repaired_step = self._apply_repair(original_step, result)
 
-                minimality = calculate_minimality_score(
-                    extract_step_text(original_step),
-                    extract_step_text(repaired_step)
-                )
+                original_text = extract_step_text(original_step)
+                repaired_text = extract_step_text(repaired_step)
+
+                minimality_lex = calculate_minimality_lex(original_text, repaired_text)
+                minimality_edit = calculate_minimality_edit(original_text, repaired_text)
+                minimality_sem: Optional[float] = None
+                if self.compute_semantic_minimality and self._embedder is not None:
+                    try:
+                        minimality_sem = calculate_minimality_sem(
+                            original_text, repaired_text, self._embedder
+                        )
+                    except Exception as e:
+                        print(f"Semantic minimality failed for step {step_id} proposal {i}: {e}")
+                        minimality_sem = None
 
                 # Evaluate repair success deterministically if reexecutor is available, otherwise predict
                 success_predicted, repaired_trace = self._evaluate_repair_success(
@@ -125,9 +170,14 @@ class CounterfactualRepair:
                     step_id=step_id,
                     original_step=original_step,
                     repaired_step=repaired_step,
-                    minimality_score=minimality,
+                    minimality_lex=minimality_lex,
+                    minimality_edit=minimality_edit,
+                    minimality_sem=minimality_sem,
                     success_predicted=success_predicted,
-                    repaired_trace=repaired_trace
+                    repaired_trace=repaired_trace,
+                    original_text=original_text,
+                    repaired_text=repaired_text,
+                    proposal_idx=i,
                 )
 
                 proposals.append(repair)
@@ -136,7 +186,7 @@ class CounterfactualRepair:
                 print(f"Error generating repair proposal {i} for step {step_id}: {e}")
                 continue
 
-        proposals.sort(key=lambda r: r.minimality_score, reverse=True)
+        proposals.sort(key=lambda r: r.minimality_lex, reverse=True)
 
         return proposals
 

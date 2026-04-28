@@ -1,0 +1,12 @@
+DRAFT.md
+RESULTS.md
+results.json
+review/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzz
+*.pywzz

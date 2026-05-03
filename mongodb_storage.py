@@ -159,22 +159,51 @@ class MongoDBStorage:
                 "num_successful_repairs": cf_repair.get("num_successful_repairs"),
             }
             
+            def _compact_proposals(proposals: Any) -> List[Dict[str, Any]]:
+                out: List[Dict[str, Any]] = []
+                if not isinstance(proposals, list):
+                    return out
+                for p in proposals:
+                    if not isinstance(p, dict):
+                        continue
+                    out.append({
+                        "proposal_idx": p.get("proposal_idx"),
+                        "minimality_lex": p.get("minimality_lex"),
+                        "minimality_edit": p.get("minimality_edit"),
+                        "minimality_sem": p.get("minimality_sem"),
+                        "success_predicted": p.get("success_predicted"),
+                        "original_text": self._truncate(p.get("original_text"), TEXT_MAX_CHARS),
+                        "repaired_text": self._truncate(p.get("repaired_text"), TEXT_MAX_CHARS),
+                    })
+                return out
+
             if "successful_repairs" in cf_repair:
                 compact_repairs: Dict[str, Any] = {}
                 for step_id, repair_data in cf_repair["successful_repairs"].items():
                     if isinstance(repair_data, dict):
                         repair_entry: Dict[str, Any] = {
                             "minimality_score": repair_data.get("minimality_score"),
+                            "minimality_lex": repair_data.get("minimality_lex"),
+                            "minimality_edit": repair_data.get("minimality_edit"),
+                            "minimality_sem": repair_data.get("minimality_sem"),
+                            "proposal_idx": repair_data.get("proposal_idx"),
                             "success_predicted": repair_data.get("success_predicted"),
                             "original_step": self._compact_step(repair_data.get("original_step", {})),
                             "repaired_step": self._compact_step(repair_data.get("repaired_step", {})),
+                            "all_proposals": _compact_proposals(repair_data.get("all_proposals", [])),
                         }
                         # Include full repaired trace for successful repairs (not compacted)
                         if repair_data.get("success_predicted") and repair_data.get("repaired_trace"):
                             repair_entry["repaired_trace"] = repair_data["repaired_trace"]
                         compact_repairs[str(step_id)] = repair_entry
                 compact_cf["successful_repairs"] = compact_repairs
-            
+
+            if "all_proposals_by_step" in cf_repair:
+                compact_all_by_step: Dict[str, List[Dict[str, Any]]] = {}
+                for step_id, proposals in cf_repair["all_proposals_by_step"].items():
+                    compact_all_by_step[str(step_id)] = _compact_proposals(proposals)
+                compact_cf["all_proposals_by_step"] = compact_all_by_step
+
             compact["counterfactual_repair"] = compact_cf
         
         # Keep multi_agent_critique with full judge ensemble output
@@ -332,17 +361,18 @@ class MongoDBStorage:
         final_answer: Any,
         analysis_results: Optional[Dict[str, Any]],
         metrics: Optional[Dict[str, Any]],
-        causal_flow_analysis_time_minutes: Optional[float] = None
+        causal_flow_analysis_time_minutes: Optional[float] = None,
+        extra_metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         trace_obj = self._parse_trace_json(trace_data)
         trace_obj = self._convert_keys_to_strings(trace_obj)
         compact_trace = self._compact_trace(trace_obj)
-        
+
         if analysis_results is None:
             analysis_results = {}
         if metrics is None:
             metrics = {}
-            
+
         analysis_results = self._convert_keys_to_strings(analysis_results)
         compact_analysis = self._compact_analysis(analysis_results)
 
@@ -358,6 +388,8 @@ class MongoDBStorage:
             "analysis": compact_analysis,
             "metrics": self._build_metrics_document(metrics),
         }
+        if extra_metadata:
+            trace_document.update(extra_metadata)
 
         self.runs.update_one(
             {"run_id": run_id},

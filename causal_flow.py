@@ -36,6 +36,8 @@ class CausalFlow:
         execution_context: Optional[Dict[str, Any]] = None,
         skip_critique: bool = False,
         intervene_step_types: Optional[Set[StepType]] = None,
+        num_proposals: int = 3,
+        compute_semantic_minimality: bool = False,
     ) -> Dict[str, Any]:
 
         self.trace = trace
@@ -56,14 +58,16 @@ class CausalFlow:
         )
         causal_steps = self.causal_attribution.get_causal_steps()
         print(f"Attribution complete: {len(causal_steps)} causal steps identified")
-        
-        print(f"Generating counterfactual repairs")
+
+        print(f"Generating counterfactual repairs (K={num_proposals}, sem={compute_semantic_minimality})")
         self.counterfactual_repair = CounterfactualRepair(
             trace=self.trace,
             causal_attribution=self.causal_attribution,
             llm_client=self.llm_client,
             reexecutor=reexecutor,
-            execution_context=execution_context
+            execution_context=execution_context,
+            num_proposals=num_proposals,
+            compute_semantic_minimality=compute_semantic_minimality,
         )
         repairs = self.counterfactual_repair.generate_repairs(step_ids=causal_steps)
         print(f"Repair complete: {sum(len(r) for r in repairs.values())} repairs proposed")
@@ -132,25 +136,54 @@ class CausalFlow:
 
         if self.counterfactual_repair:
             successful_repairs = self.counterfactual_repair.get_all_successful_repairs()
+            all_repairs = self.counterfactual_repair.repairs
             compiled_repairs: Dict[str, Dict[str, Any]] = {}
+
+            def _proposals_payload(step_id: int) -> List[Dict[str, Any]]:
+                out: List[Dict[str, Any]] = []
+                for r in all_repairs.get(step_id, []):
+                    out.append({
+                        "proposal_idx": r.proposal_idx,
+                        "minimality_lex": r.minimality_lex,
+                        "minimality_edit": r.minimality_edit,
+                        "minimality_sem": r.minimality_sem,
+                        "success_predicted": r.success_predicted,
+                        "original_text": r.original_text,
+                        "repaired_text": r.repaired_text,
+                    })
+                return out
+
             for step_id, repair_list in successful_repairs.items():
                 if repair_list:
                     best_repair = repair_list[0]
                     repair_entry: Dict[str, Any] = {
-                        "minimality_score": best_repair.minimality_score,
+                        "minimality_score": best_repair.minimality_lex,
+                        "minimality_lex": best_repair.minimality_lex,
+                        "minimality_edit": best_repair.minimality_edit,
+                        "minimality_sem": best_repair.minimality_sem,
                         "success_predicted": best_repair.success_predicted,
                         "original_step": best_repair.original_step.to_dict(),
                         "repaired_step": best_repair.repaired_step.to_dict(),
+                        "proposal_idx": best_repair.proposal_idx,
+                        "all_proposals": _proposals_payload(step_id),
                     }
-                    # Include full repaired trace for successful repairs
                     if best_repair.success_predicted and best_repair.repaired_trace is not None:
                         repair_entry["repaired_trace"] = best_repair.repaired_trace.to_dict()
                     compiled_repairs[str(step_id)] = repair_entry
-            
+
+            # Also persist proposals for causal steps where no proposal succeeded —
+            # needed for the ablation so we can compute metric agreement on the full set.
+            all_proposals_by_step: Dict[str, List[Dict[str, Any]]] = {
+                str(step_id): _proposals_payload(step_id)
+                for step_id in all_repairs.keys()
+                if str(step_id) not in compiled_repairs
+            }
+
             results["counterfactual_repair"] = {
                 "num_steps_repaired": len(repairs) if repairs else 0,
                 "num_successful_repairs": len(successful_repairs) if successful_repairs else 0,
-                "successful_repairs": compiled_repairs
+                "successful_repairs": compiled_repairs,
+                "all_proposals_by_step": all_proposals_by_step,
             }
 
         # Add critique results if available

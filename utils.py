@@ -1,4 +1,8 @@
+from typing import Optional
+
 from trace_logger import Step, StepType
+from semantic_minimality import cosine_similarity, Embedder
+
 
 
 def summarize_step(step: Step) -> str:
@@ -96,7 +100,7 @@ def calculate_text_similarity(text1: str, text2: str) -> float:
     return intersection / union if union > 0 else 0.0
 
 
-def calculate_minimality_score(original: str, modified: str) -> float:
+def calculate_minimality_lex(original: str, modified: str) -> float:
 
     if original == modified:
         return 1.0
@@ -120,3 +124,53 @@ def calculate_minimality_score(original: str, modified: str) -> float:
     minimality = (matches / max_len) * (1 - len_diff_penalty * 0.5)
 
     return max(0.0, min(1.0, minimality))
+
+
+calculate_minimality_score = calculate_minimality_lex
+
+
+def calculate_minimality_edit(original: str, modified: str) -> float:
+    if original == modified:
+        return 1.0
+    if not original and not modified:
+        return 1.0
+
+    a, b = original, modified
+    la, lb = len(a), len(b)
+    if la == 0 or lb == 0:
+        return 0.0
+
+    prev = list(range(lb + 1))
+    curr = [0] * (lb + 1)
+    for i in range(1, la + 1):
+        curr[0] = i
+        ca = a[i - 1]
+        for j in range(1, lb + 1):
+            cost = 0 if ca == b[j - 1] else 1
+            curr[j] = min(
+                prev[j] + 1,        # deletion
+                curr[j - 1] + 1,    # insertion
+                prev[j - 1] + cost, # substitution
+            )
+        prev, curr = curr, prev
+
+    distance = prev[lb]
+    return max(0.0, 1.0 - distance / max(la, lb))
+
+
+def calculate_minimality_sem(
+    original: str,
+    modified: str,
+    embedder: Embedder,
+) -> float:
+    if original == modified:
+        return 1.0
+    if not original and not modified:
+        return 1.0
+    if not original or not modified:
+        return 0.0
+   
+    vecs = embedder.embed([original, modified])
+    cos = cosine_similarity(vecs[0], vecs[1])
+    # Map [-1, 1] -> [0, 1]
+    return max(0.0, min(1.0, (cos + 1.0) / 2.0))

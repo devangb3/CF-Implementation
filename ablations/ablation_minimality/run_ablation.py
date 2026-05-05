@@ -8,7 +8,7 @@ Phase 3 analysis can derive agreement rates and per-policy post-repair accuracy
 without further generation.
 
 Usage:
-    python -m experiments.ablation_minimality.run_ablation \\
+    python -m ablations.ablation_minimality.run_ablation \\
         --benchmark gsm8k \\
         --source-run-id run_GSM8K_2026-01-27T... \\
         [--limit N] [--dry-run]

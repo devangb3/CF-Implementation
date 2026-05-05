@@ -12,7 +12,7 @@ Reads the same sample manifest as ``build_review_csv.py`` but emits a single
   that ``analyze.py`` expects.
 
 Usage:
-    python -m experiments.ablation_judge.build_review_html --dataset sealqa
+    python -m ablations.ablation_judge.build_review_html --dataset sealqa
 """
 
 from __future__ import annotations
@@ -27,7 +27,10 @@ from typing import Any, Dict, List, Optional
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-from experiments.ablation_judge.build_review_csv import (
+repo_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(repo_root))
+
+from ablations.ablation_judge.build_review_csv import (
     FIELDNAMES,
     build_rows,
 )

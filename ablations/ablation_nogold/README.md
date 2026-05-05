@@ -46,19 +46,19 @@ the source run.
 ## Running
 
 ```bash
-python -m experiments.ablation_nogold.run_ablation \
+python -m ablations.ablation_nogold.run_ablation \
     --benchmark gsm8k \
     --source-run-id run_GSM8K_2025-12-20T07:38:08.801930
 
-python -m experiments.ablation_nogold.run_ablation \
+python -m ablations.ablation_nogold.run_ablation \
     --benchmark mbpp \
     --source-run-id run_MBPP_2025-12-11T00:49:23.675982
 
-python -m experiments.ablation_nogold.run_ablation \
+python -m ablations.ablation_nogold.run_ablation \
     --benchmark sealqa \
     --source-run-id run_SealQA_2025-12-18T02:41:05.742380
 
-python -m experiments.ablation_nogold.run_ablation \
+python -m ablations.ablation_nogold.run_ablation \
     --benchmark medbrowse \
     --source-run-id run_MedBrowseComp_2025-12-19T21:55:32.749095
 ```

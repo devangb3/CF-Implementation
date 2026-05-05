@@ -68,18 +68,18 @@ judge (`_llm_predict_outcome` uniformly).
 
 ```bash
 # 1. discover run IDs
-python -m experiments.ablation_judge.sample_for_review --list-runs
+python -m ablations.ablation_judge.sample_for_review --list-runs
 
 # 2. sample per dataset (writes review/<dataset>_sample.json)
-python -m experiments.ablation_judge.sample_for_review \
+python -m ablations.ablation_judge.sample_for_review \
     --dataset seal_qa \
     --run-id <seal_qa_run_id>
 
 # 3a. build visual review UI (preferred — writes review/<dataset>_review.html)
-python -m experiments.ablation_judge.build_review_html --dataset sealqa
+python -m ablations.ablation_judge.build_review_html --dataset sealqa
 
 # 3b. or build a plain CSV (writes review/<dataset>_review.csv)
-python -m experiments.ablation_judge.build_review_csv --dataset sealqa
+python -m ablations.ablation_judge.build_review_csv --dataset sealqa
 
 # 4. in the HTML UI, press 1 (correct) / 2 (incorrect) / 3 (unclear),
 #    n/p to navigate, then click "Download labeled CSV" and save it as
@@ -87,7 +87,7 @@ python -m experiments.ablation_judge.build_review_csv --dataset sealqa
 #    so you can close/reopen the page without losing progress.
 
 # 5. compute metrics (writes RESULTS.md and results.json)
-python -m experiments.ablation_judge.analyze
+python -m ablations.ablation_judge.analyze
 ```
 
 ## Output

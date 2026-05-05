@@ -16,7 +16,7 @@ Protocol:
       * Repair rate   = fraction of failed problems with ≥1 successful repair
       * Post-repair accuracy = (initially correct + repaired) / 50
 
-Results → Ablation_Stochasticity/results/
+Results → ablations/ablation_stochasticity/results/
 """
 
 import os
@@ -30,7 +30,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from datasets import load_dataset
 from dotenv import load_dotenv

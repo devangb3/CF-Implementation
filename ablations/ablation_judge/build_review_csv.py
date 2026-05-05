@@ -8,7 +8,7 @@ One row per (trace, step, proposal). Columns match the labeling conventions
 described in ``README.md``.
 
 Usage:
-    python -m experiments.ablation_judge.build_review_csv --dataset sealqa
+    python -m ablations.ablation_judge.build_review_csv --dataset sealqa
 """
 
 from __future__ import annotations

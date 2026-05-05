@@ -9,7 +9,7 @@ paired repair-rate delta against the existing ``ablation_minimality_*``
 collections without regenerating the with-gold arm.
 
 Usage:
-    python -m experiments.ablation_nogold.run_ablation \\
+    python -m ablations.ablation_nogold.run_ablation \\
         --benchmark gsm8k \\
         --source-run-id run_GSM8K_2026-01-27T... \\
         [--limit N] [--dry-run]
@@ -38,7 +38,7 @@ from mongodb_storage import MongoDBStorage
 from trace_logger import StepType, TraceLogger
 
 
-# Sample sizes must match experiments/ablation_minimality so the two arms
+# Sample sizes must match ablations/ablation_minimality so the two arms
 # are paired per problem_id. SealQA/MedBrowse take all repairable (actual
 # pools in causal_flow_dups are smaller than the original plan: 26 and 67).
 SAMPLE_SIZES: Dict[str, Optional[int]] = {

@@ -11,7 +11,7 @@ Rows with ``human_label == "unclear"`` are excluded from precision/recall
 and counted separately.
 
 Usage:
-    python -m experiments.ablation_judge.analyze \
+    python -m ablations.ablation_judge.analyze \
         [--reported-rates sealqa=0.219 medbrowse=0.445]
 """
 

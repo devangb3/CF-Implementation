@@ -7,10 +7,10 @@ deterministic JSON sample manifest that ``build_review_csv.py`` consumes.
 
 Usage:
     # discover run IDs in local Mongo
-    python -m experiments.ablation_judge.sample_for_review --list-runs
+    python -m ablations.ablation_judge.sample_for_review --list-runs
 
     # sample for one dataset
-    python -m experiments.ablation_judge.sample_for_review \
+    python -m ablations.ablation_judge.sample_for_review \
         --dataset sealqa --run-id run_SealQA_...
 """
 

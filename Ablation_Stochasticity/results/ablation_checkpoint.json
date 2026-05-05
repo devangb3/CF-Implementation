@@ -1,0 +1,701 @@
+{
+  "config": {
+    "num_problems": 50,
+    "num_runs": 3,
+    "k_proposals": 3,
+    "random_seed": 42,
+    "model": "google/gemini-2.0-flash-lite-001",
+    "skip_critique": true,
+    "timestamp": "2026-04-27T16:57:29.339432"
+  },
+  "problems": [
+    {
+      "problem_idx": 0,
+      "dataset_index": 1309,
+      "question": "The girls are trying to raise money for a carnival. Kim raises $320 more than Alexandra, who raises $430, and Maryam rai...",
+      "gold_answer": "2280.0",
+      "initially_correct": false,
+      "agent_answer": "2180",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 0,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 0,
+          "repaired": false,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 0,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 0,
+          "repaired": false,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 0,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 0,
+          "repaired": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 1,
+      "dataset_index": 228,
+      "question": "Kalinda is working on a 360 piece puzzle with her mom. Kalinda can normally add 4 pieces per minute. Her mom can typical...",
+      "gold_answer": "1.0",
+      "initially_correct": false,
+      "agent_answer": "10",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 17,
+          "total_repairs_attempted": 30,
+          "repair_success_rate": 0.5667,
+          "causal_steps_identified": 10,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 11,
+          "total_repairs_attempted": 18,
+          "repair_success_rate": 0.6111,
+          "causal_steps_identified": 6,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 15,
+          "total_repairs_attempted": 24,
+          "repair_success_rate": 0.625,
+          "causal_steps_identified": 8,
+          "repaired": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 2,
+      "dataset_index": 51,
+      "question": "Tom's ship can travel at 10 miles per hour.  He is sailing from 1 to 4 PM.  He then travels back at a rate of 6 mph.  Ho...",
+      "gold_answer": "5.0",
+      "initially_correct": true,
+      "agent_answer": "5",
+      "runs": []
+    },
+    {
+      "problem_idx": 3,
+      "dataset_index": 563,
+      "question": "James decides to buy birthday candles for his 2 sons.  One of them is 12 and the other is 4 years younger.  A pack of 5 ...",
+      "gold_answer": "12.0",
+      "initially_correct": false,
+      "agent_answer": null,
+      "runs": [],
+      "agent_error": "Failed to parse JSON response: 1 validation error for GSM8KSolution\nsteps.2.operation\n  String should match pattern '^(addition|subtraction|multiplication|division|other)$' [type=string_pattern_mismatch, input_value='division and rounding up', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch"
+    },
+    {
+      "problem_idx": 4,
+      "dataset_index": 501,
+      "question": "Mariah\u2019s grandma was teaching her to knit. Mariah used 1/4 of a skein of yarn. Her grandma used 1/2 of a skein of yarn. ...",
+      "gold_answer": "273.0",
+      "initially_correct": true,
+      "agent_answer": "273",
+      "runs": []
+    },
+    {
+      "problem_idx": 5,
+      "dataset_index": 457,
+      "question": "While playing with her friends in their school playground, Katelyn saw 50 fairies flying above the nearby forest. After ...",
+      "gold_answer": "45.0",
+      "initially_correct": true,
+      "agent_answer": "45",
+      "runs": []
+    },
+    {
+      "problem_idx": 6,
+      "dataset_index": 285,
+      "question": "If Ann is 9 years old and her brother is twice her age, how old will her brother be in 3 years?",
+      "gold_answer": "21.0",
+      "initially_correct": true,
+      "agent_answer": "21",
+      "runs": []
+    },
+    {
+      "problem_idx": 7,
+      "dataset_index": 209,
+      "question": "Twenty dozen cups cost $1200 less than the total cost of half a dozen plates sold at $6000 each. Calculate the total cos...",
+      "gold_answer": "145.0",
+      "initially_correct": false,
+      "agent_answer": "7.5",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 0,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 0,
+          "repaired": false,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 0,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 0,
+          "repaired": false,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 3,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 1,
+          "repaired": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 8,
+      "dataset_index": 1116,
+      "question": "Last year there were 50 students enrolled in a calligraphy class. This year, there was a 20% increase in enrollment. How...",
+      "gold_answer": "60.0",
+      "initially_correct": true,
+      "agent_answer": "60",
+      "runs": []
+    },
+    {
+      "problem_idx": 9,
+      "dataset_index": 178,
+      "question": "Rani has ten more crabs than Monic, who has 4 fewer crabs than Bo. If Bo has 40 crabs, calculate the total number of cra...",
+      "gold_answer": "122.0",
+      "initially_correct": true,
+      "agent_answer": "122",
+      "runs": []
+    },
+    {
+      "problem_idx": 10,
+      "dataset_index": 1209,
+      "question": "Brian's basement was damp and musty, so he bought a dehumidifier to remove moisture out of the air.  The device has thre...",
+      "gold_answer": "29.0",
+      "initially_correct": false,
+      "agent_answer": "35",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 23,
+          "total_repairs_attempted": 45,
+          "repair_success_rate": 0.5111,
+          "causal_steps_identified": 15,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 29,
+          "total_repairs_attempted": 39,
+          "repair_success_rate": 0.7436,
+          "causal_steps_identified": 13,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 24,
+          "total_repairs_attempted": 39,
+          "repair_success_rate": 0.6154,
+          "causal_steps_identified": 13,
+          "repaired": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 11,
+      "dataset_index": 864,
+      "question": "George, a grade six teacher, ordered 600 burritos for the sixth-grade class picnic. If there were 50 students at the pic...",
+      "gold_answer": "80.0",
+      "initially_correct": true,
+      "agent_answer": "80",
+      "runs": []
+    },
+    {
+      "problem_idx": 12,
+      "dataset_index": 65,
+      "question": "Jim spends 2 hours watching TV and then decides to go to bed and reads for half as long.  He does this 3 times a week.  ...",
+      "gold_answer": "36.0",
+      "initially_correct": true,
+      "agent_answer": "36",
+      "runs": []
+    },
+    {
+      "problem_idx": 13,
+      "dataset_index": 61,
+      "question": "Janet buys a brooch for her daughter.  She pays $500 for the material to make it and then another $800 for the jeweler t...",
+      "gold_answer": "1430.0",
+      "initially_correct": true,
+      "agent_answer": "1430",
+      "runs": []
+    },
+    {
+      "problem_idx": 14,
+      "dataset_index": 191,
+      "question": "Ducks need to eat 3.5 pounds of insects each week to survive. If there is a flock of ten ducks, how many pounds of insec...",
+      "gold_answer": "5.0",
+      "initially_correct": true,
+      "agent_answer": "5",
+      "runs": []
+    },
+    {
+      "problem_idx": 15,
+      "dataset_index": 447,
+      "question": "Joey has 214 points before his turn in Scrabble. He scores 26 points. Then Marcy, who has 225 points, scores 10 points. ...",
+      "gold_answer": "5.0",
+      "initially_correct": true,
+      "agent_answer": "5",
+      "runs": []
+    },
+    {
+      "problem_idx": 16,
+      "dataset_index": 476,
+      "question": "Sarah went to buy books from the store and spent $300 on the books. If each book was $15 and she gave an equal number of...",
+      "gold_answer": "5.0",
+      "initially_correct": true,
+      "agent_answer": "5",
+      "runs": []
+    },
+    {
+      "problem_idx": 17,
+      "dataset_index": 1034,
+      "question": "Ted starts with $200. He buys 3 books for 16 dollars each and 3 pencils for 6 dollars each. How much did he spend in tot...",
+      "gold_answer": "66.0",
+      "initially_correct": true,
+      "agent_answer": "66",
+      "runs": []
+    },
+    {
+      "problem_idx": 18,
+      "dataset_index": 1232,
+      "question": "Eve had 20 pieces of pomelos. After giving her friend some pomelos, Eve is left with 1/4 of the pomelos she originally h...",
+      "gold_answer": "15.0",
+      "initially_correct": true,
+      "agent_answer": "15",
+      "runs": []
+    },
+    {
+      "problem_idx": 19,
+      "dataset_index": 54,
+      "question": "The Doubtfire sisters are driving home with 7 kittens adopted from the local animal shelter when their mother calls to i...",
+      "gold_answer": "40.0",
+      "initially_correct": true,
+      "agent_answer": "40",
+      "runs": []
+    },
+    {
+      "problem_idx": 20,
+      "dataset_index": 1149,
+      "question": "Jen got 3 fish.  They each need $1 worth of food a day.  How much does she spend on food in the month of May?",
+      "gold_answer": "93.0",
+      "initially_correct": true,
+      "agent_answer": "93",
+      "runs": []
+    },
+    {
+      "problem_idx": 21,
+      "dataset_index": 407,
+      "question": "Elliott is trying to walk 10,000 steps a day. He finished half of his steps on his walks to and from school and did anot...",
+      "gold_answer": "2000.0",
+      "initially_correct": true,
+      "agent_answer": "2000",
+      "runs": []
+    },
+    {
+      "problem_idx": 22,
+      "dataset_index": 859,
+      "question": "While working at the restaurant, each of the forty customers who came into the restaurant gave Rafaela a $20 tip. Juliet...",
+      "gold_answer": "1520.0",
+      "initially_correct": true,
+      "agent_answer": "1520",
+      "runs": []
+    },
+    {
+      "problem_idx": 23,
+      "dataset_index": 451,
+      "question": "On a certain day, the total cost of filling up 20 helium balloons was $900. Two days later, the cost of filling each bal...",
+      "gold_answer": "11050.0",
+      "initially_correct": true,
+      "agent_answer": "11050",
+      "runs": []
+    },
+    {
+      "problem_idx": 24,
+      "dataset_index": 919,
+      "question": "To raise money for their class fund, each of the 30 students from one class sold lollipops that cost $0.8 per lollypop. ...",
+      "gold_answer": "90.0",
+      "initially_correct": true,
+      "agent_answer": "90",
+      "runs": []
+    },
+    {
+      "problem_idx": 25,
+      "dataset_index": 1206,
+      "question": "John decides to get a loan by mortgaging his home.  His house is worth $250,000.  He gets a loan worth 40% of that.  He ...",
+      "gold_answer": "40000.0",
+      "initially_correct": true,
+      "agent_answer": "40000",
+      "runs": []
+    },
+    {
+      "problem_idx": 26,
+      "dataset_index": 569,
+      "question": "Liam and Mitchell own competing lemonade stands across the street from one another. When Liam bragged that he had made $...",
+      "gold_answer": "21.0",
+      "initially_correct": true,
+      "agent_answer": "21",
+      "runs": []
+    },
+    {
+      "problem_idx": 27,
+      "dataset_index": 13,
+      "question": "Melanie is a door-to-door saleswoman. She sold a third of her vacuum cleaners at the green house, 2 more to the red hous...",
+      "gold_answer": "18.0",
+      "initially_correct": false,
+      "agent_answer": null,
+      "runs": [],
+      "agent_error": "Failed to parse JSON response: 1 validation error for GSM8KSolution\nsteps.2.operation\n  String should match pattern '^(addition|subtraction|multiplication|division|other)$' [type=string_pattern_mismatch, input_value='multiplication and division', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch"
+    },
+    {
+      "problem_idx": 28,
+      "dataset_index": 326,
+      "question": "Some people got on a bus at the terminal. At the first bus stop, 5 more people got in. Then at the second bus stop, 7 pe...",
+      "gold_answer": "14.0",
+      "initially_correct": true,
+      "agent_answer": "14",
+      "runs": []
+    },
+    {
+      "problem_idx": 29,
+      "dataset_index": 865,
+      "question": "A bumper car rink has 12 red cars. They have 2 fewer green cars than they have red cars. They have 3 times the number of...",
+      "gold_answer": "23.0",
+      "initially_correct": true,
+      "agent_answer": "23",
+      "runs": []
+    },
+    {
+      "problem_idx": 30,
+      "dataset_index": 696,
+      "question": "Students in class 3B are collecting school points for behavior. If they get enough points in total, they can go on a tri...",
+      "gold_answer": "145.0",
+      "initially_correct": false,
+      "agent_answer": "105.0",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 42,
+          "total_repairs_attempted": 48,
+          "repair_success_rate": 0.875,
+          "causal_steps_identified": 16,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 38,
+          "total_repairs_attempted": 45,
+          "repair_success_rate": 0.8444,
+          "causal_steps_identified": 15,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 40,
+          "total_repairs_attempted": 48,
+          "repair_success_rate": 0.8333,
+          "causal_steps_identified": 16,
+          "repaired": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 31,
+      "dataset_index": 318,
+      "question": "If a classroom has 3 times as many girls as they do boys, and 1/10 as many nongendered children as they do boys, and the...",
+      "gold_answer": "123.0",
+      "initially_correct": true,
+      "agent_answer": "123",
+      "runs": []
+    },
+    {
+      "problem_idx": 32,
+      "dataset_index": 440,
+      "question": "The area of Billie's rectangular bedroom is 360 square feet. If the length of his room is 3 yards, what is the perimeter...",
+      "gold_answer": "98.0",
+      "initially_correct": true,
+      "agent_answer": "98",
+      "runs": []
+    },
+    {
+      "problem_idx": 33,
+      "dataset_index": 689,
+      "question": "Manolo bought five lollipops and four candies that cost $3.20. If each lollipop costs $0.40, how much will 10 lollipops ...",
+      "gold_answer": "7.0",
+      "initially_correct": false,
+      "agent_answer": "6.00",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 20,
+          "total_repairs_attempted": 30,
+          "repair_success_rate": 0.6667,
+          "causal_steps_identified": 10,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 16,
+          "total_repairs_attempted": 30,
+          "repair_success_rate": 0.5333,
+          "causal_steps_identified": 10,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 16,
+          "total_repairs_attempted": 27,
+          "repair_success_rate": 0.5926,
+          "causal_steps_identified": 9,
+          "repaired": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 34,
+      "dataset_index": 189,
+      "question": "Three friends spent $20.25 on 3 tickets to the fair. They also spent $4.50 less on food than on the tickets. They also w...",
+      "gold_answer": "34.0",
+      "initially_correct": false,
+      "agent_answer": "42.0",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 9,
+          "total_repairs_attempted": 12,
+          "repair_success_rate": 0.75,
+          "causal_steps_identified": 4,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 10,
+          "total_repairs_attempted": 12,
+          "repair_success_rate": 0.8333,
+          "causal_steps_identified": 4,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 11,
+          "total_repairs_attempted": 18,
+          "repair_success_rate": 0.6111,
+          "causal_steps_identified": 6,
+          "repaired": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 35,
+      "dataset_index": 778,
+      "question": "At the local Pick Your Own fruit orchard, you could pick your own peaches for $2.00 per pound, plums were $1.00 per poun...",
+      "gold_answer": "38.0",
+      "initially_correct": true,
+      "agent_answer": "38.00",
+      "runs": []
+    },
+    {
+      "problem_idx": 36,
+      "dataset_index": 198,
+      "question": "Elaine initially had 20 Pokemon cards. After a month, she collected three times that number. In the second month, she co...",
+      "gold_answer": "320.0",
+      "initially_correct": false,
+      "agent_answer": "220",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 9,
+          "total_repairs_attempted": 18,
+          "repair_success_rate": 0.5,
+          "causal_steps_identified": 6,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 20,
+          "total_repairs_attempted": 30,
+          "repair_success_rate": 0.6667,
+          "causal_steps_identified": 10,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 13,
+          "total_repairs_attempted": 27,
+          "repair_success_rate": 0.4815,
+          "causal_steps_identified": 9,
+          "repaired": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 37,
+      "dataset_index": 735,
+      "question": "In a student council election, candidate A got 20% of the votes while candidate B got 50% more than candidate A's votes....",
+      "gold_answer": "50.0",
+      "initially_correct": false,
+      "agent_answer": "10",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 1,
+          "total_repairs_attempted": 12,
+          "repair_success_rate": 0.0833,
+          "causal_steps_identified": 4,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 2,
+          "total_repairs_attempted": 18,
+          "repair_success_rate": 0.1111,
+          "causal_steps_identified": 6,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 15,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 5,
+          "repaired": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "problem_idx": 38,
+      "dataset_index": 704,
+      "question": "Gerald and Julia divided $100 in the ratio 3:2. If Gerald spent $10 on a book, how much money did he have left?",
+      "gold_answer": "50.0",
+      "initially_correct": true,
+      "agent_answer": "50",
+      "runs": []
+    },
+    {
+      "problem_idx": 39,
+      "dataset_index": 1236,
+      "question": "Madeline ate 6 grapes. Her brother wanted to make grape juice and used up 5 times as many grapes then Madeline to make a...",
+      "gold_answer": "84.0",
+      "initially_correct": true,
+      "agent_answer": "84",
+      "runs": []
+    },
+    {
+      "problem_idx": 40,
+      "dataset_index": 541,
+      "question": "Elvis has a monthly saving target of $1125. In April, he wants to save twice as much daily in the second half as he save...",
+      "gold_answer": "50.0",
+      "initially_correct": true,
+      "agent_answer": "50",
+      "runs": []
+    },
+    {
+      "problem_idx": 41,
+      "dataset_index": 88,
+      "question": "Marilyn's first record sold 10 times as many copies as Harald's. If they sold 88,000 copies combined, how many copies di...",
+      "gold_answer": "8000.0",
+      "initially_correct": true,
+      "agent_answer": "8000",
+      "runs": []
+    },
+    {
+      "problem_idx": 42,
+      "dataset_index": 940,
+      "question": "For the children's day celebration, children are to perform mass drills in the presence of the President of the country....",
+      "gold_answer": "280.0",
+      "initially_correct": true,
+      "agent_answer": "280",
+      "runs": []
+    },
+    {
+      "problem_idx": 43,
+      "dataset_index": 1098,
+      "question": "Jeff is 10 years older than his younger sister, Martha. Martha, on the other hand, is 4 years younger than her boyfriend...",
+      "gold_answer": "30.0",
+      "initially_correct": true,
+      "agent_answer": "30",
+      "runs": []
+    },
+    {
+      "problem_idx": 44,
+      "dataset_index": 255,
+      "question": "Ten stalls have 20 cows each. Mr. Sylas buys 40 cows and divides them equally, putting an equal number of the new cows i...",
+      "gold_answer": "192.0",
+      "initially_correct": false,
+      "agent_answer": "176",
+      "runs": [
+        {
+          "run_idx": 0,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 0,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 0,
+          "repaired": false,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "successful_repairs": 2,
+          "total_repairs_attempted": 3,
+          "repair_success_rate": 0.6667,
+          "causal_steps_identified": 1,
+          "repaired": true,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "successful_repairs": 0,
+          "total_repairs_attempted": 3,
+          "repair_success_rate": 0.0,
+          "causal_steps_identified": 1,
+          "repaired": false,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "summary": {}
+}

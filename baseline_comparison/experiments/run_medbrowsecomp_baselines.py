@@ -1,7 +1,7 @@
 """
 MedBrowseComp Baseline Comparison Experiment
 =============================================
-Compares three iterative-reasoning baselines against a Direct baseline on the
+Compares two iterative-reasoning baselines against a Direct baseline on the
 AIM-Harvard MedBrowseComp_CUA medical web-search QA benchmark.
 
 Design: all baselines share the same initial BrowseCompAgent web-search run.
@@ -16,7 +16,6 @@ Baselines:
     Direct          – BrowseCompAgent answer with no refinement
     Self-Refine     – Madaan et al. 2023  (https://arxiv.org/abs/2303.17651)
     Self-Reflection – arXiv 2405.06682    (https://arxiv.org/pdf/2405.06682)
-    Tree of Thoughts – Yao et al. 2023   (https://arxiv.org/abs/2305.10601)
 
 Model:       google/gemini-3-flash-preview
 Temperature: 0.3 for all agent steps (web browsing + refinement)
@@ -30,7 +29,6 @@ Usage:
 import argparse
 import json
 import os
-import re
 import sys
 import threading
 import time
@@ -54,7 +52,7 @@ from experiments.browsecomp.browsecomp_eval import grade_response
 from experiments.browsecomp.web_env import WebEnvironment
 
 RESULTS_DIR = Path(__file__).parent.parent / "results"
-ALL_BASELINES = ["direct", "self_refine", "self_reflection", "tree_of_thoughts"]
+ALL_BASELINES = ["direct", "self_refine", "self_reflection"]
 
 
 def _find_latest_checkpoint(prefix: str) -> Optional[Path]:
@@ -191,56 +189,6 @@ class WebRefinementMixin:
             temperature=AGENT_TEMPERATURE,
         )
 
-    # ---- Tree of Thoughts -------------------------------------------------
-
-    def _tot_candidates(self, question: str, context: str, k: int) -> List[str]:
-        response = self.llm.generate(
-            (
-                f"Generate {k} distinct candidate answers to this medical question "
-                f"using different interpretations of the evidence.\n\n"
-                f"Question: {question}\n\n"
-                f"Web evidence:\n{context}\n\n"
-                f"List {k} candidate answers, numbered 1-{k}. "
-                f"Each should be a concise, exact answer."
-            ),
-            system_message="You are a thorough medical researcher. Explore different interpretations.",
-            temperature=AGENT_TEMPERATURE,
-        )
-        answers: List[str] = []
-        for m in re.finditer(r'(?:^|\n)\s*\d+[.)]\s*(.+?)(?=\n\s*\d+[.)]|\Z)', response, re.DOTALL):
-            a = m.group(1).strip()
-            if a:
-                answers.append(a)
-        if len(answers) < k:
-            lines = [l.strip() for l in response.splitlines() if l.strip() and not l.strip().startswith('#')]
-            seen = set(answers)
-            for l in lines:
-                if l not in seen:
-                    answers.append(l)
-                    seen.add(l)
-        return answers[:k]
-
-    def _tot_evaluate(self, question: str, context: str, candidates: List[str]) -> List[float]:
-        text = "\n".join(f"{i+1}. {a}" for i, a in enumerate(candidates))
-        response = self.llm.generate(
-            (
-                f"Rate each candidate answer for this medical question (1-10).\n\n"
-                f"Question: {question}\n\n"
-                f"Evidence:\n{context}\n\n"
-                f"Candidates:\n{text}\n\n"
-                f"Score each 1-10 (10 = best supported by evidence). "
-                f"Reply with {len(candidates)} comma-separated numbers only."
-            ),
-            system_message="You are a precise medical fact evaluator.",
-            temperature=AGENT_TEMPERATURE,
-        )
-        raw = re.findall(r'\b(10|[1-9])\b', response)
-        scores = [float(s) for s in raw[:len(candidates)]]
-        while len(scores) < len(candidates):
-            scores.append(5.0)
-        return scores
-
-
 class DirectWebRefinement(WebRefinementMixin):
     """No refinement — returns the BrowseCompAgent's initial answer."""
 
@@ -300,31 +248,6 @@ class SelfReflectionWeb(WebRefinementMixin):
         }
 
 
-class TreeOfThoughtsWeb(WebRefinementMixin):
-    def __init__(self, llm: LLMClient, num_candidates: int = 3) -> None:
-        self.llm = llm
-        self.k = num_candidates
-
-    def refine(
-        self, question: str, initial_answer: str, context: str, llm_calls_so_far: int
-    ) -> Dict[str, Any]:
-        candidates = self._tot_candidates(question, context, self.k)
-        refinement_calls = 1
-
-        scores = self._tot_evaluate(question, context, candidates)
-        refinement_calls += 1
-
-        best_idx = scores.index(max(scores))
-        best_answer = candidates[best_idx] if candidates else initial_answer
-
-        return {
-            "final_answer": best_answer,
-            "refinement_llm_calls": refinement_calls,
-            "total_llm_calls": llm_calls_so_far + refinement_calls,
-            "candidates": list(zip(candidates, scores)),
-        }
-
-
 # ---------------------------------------------------------------------------
 # Statistics helpers
 # ---------------------------------------------------------------------------
@@ -380,7 +303,6 @@ class MedBrowseCompBaselineExperiment:
         baselines_to_run: Optional[List[str]] = None,
         max_steps: int = 10,
         self_refine_max_iter: int = 3,
-        tot_candidates: int = 3,
     ) -> None:
         self.model = model
         self.baselines_to_run = baselines_to_run or ALL_BASELINES
@@ -388,7 +310,6 @@ class MedBrowseCompBaselineExperiment:
         self._search_api_key = search_api_key
         self._max_steps = max_steps
         self._self_refine_max_iter = self_refine_max_iter
-        self._tot_candidates = tot_candidates
 
     def _make_components(self) -> tuple:
         """Create a fresh, independent agent + grader + refiners (one set per thread)."""
@@ -404,8 +325,6 @@ class MedBrowseCompBaselineExperiment:
             refiners["self_refine"] = SelfRefineWeb(ref_llm, max_iter=self._self_refine_max_iter)
         if "self_reflection" in self.baselines_to_run:
             refiners["self_reflection"] = SelfReflectionWeb(ref_llm)
-        if "tree_of_thoughts" in self.baselines_to_run:
-            refiners["tree_of_thoughts"] = TreeOfThoughtsWeb(ref_llm, num_candidates=self._tot_candidates)
         return agent, grader_llm, refiners
 
     def _load_data(self, num_examples: Optional[int]) -> List[Dict[str, Any]]:
@@ -592,7 +511,6 @@ def main() -> None:
     parser.add_argument("--max_steps", type=int, default=10,
                         help="Max web-browsing steps per problem (default: 10)")
     parser.add_argument("--self_refine_max_iter", type=int, default=3)
-    parser.add_argument("--tot_candidates", type=int, default=3)
     parser.add_argument("--resume", nargs="?", const="latest", default=None, metavar="FILE",
                         help="Resume from checkpoint. Omit FILE to auto-pick latest medbrowsecomp_*.json.")
     parser.add_argument("--workers", type=int, default=1,
@@ -621,7 +539,6 @@ def main() -> None:
         baselines_to_run=args.baselines,
         max_steps=args.max_steps,
         self_refine_max_iter=args.self_refine_max_iter,
-        tot_candidates=args.tot_candidates,
     )
     results = experiment.run(num_examples=args.num_examples, resume_path=resume_path, workers=args.workers, sample_n=args.sample)
     print(f"\nBest baseline accuracy: "

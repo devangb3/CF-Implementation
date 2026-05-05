@@ -1,14 +1,13 @@
 """
 GSM8K Baseline Comparison Experiment
 =====================================
-Compares three iterative-reasoning baselines against a Direct (single-pass CoT) baseline
+Compares two iterative-reasoning baselines against a Direct (single-pass CoT) baseline
 on the GSM8K math benchmark.
 
 Baselines implemented:
     Direct          – one-shot Chain-of-Thought (lower bound)
     Self-Refine     – Madaan et al. 2023  (https://arxiv.org/abs/2303.17651)
     Self-Reflection – arXiv 2405.06682    (https://arxiv.org/pdf/2405.06682)
-    Tree of Thoughts – Yao et al. 2023   (https://arxiv.org/abs/2305.10601)
 
 Results are written to baseline_comparison/results/gsm8k_<timestamp>.json
 after every problem so the run can be interrupted and inspected mid-way.
@@ -47,10 +46,9 @@ sys.path.insert(0, str(baseline_root))
 
 from baselines.self_refine import SelfRefine
 from baselines.self_reflection import SelfReflection
-from baselines.tree_of_thoughts import TreeOfThoughts
 
 RESULTS_DIR = baseline_root / "results"
-ALL_BASELINES = ["direct", "self_refine", "self_reflection", "tree_of_thoughts"]
+ALL_BASELINES = ["direct", "self_refine", "self_reflection"]
 
 
 def _find_latest_checkpoint(prefix: str) -> Optional[Path]:
@@ -221,18 +219,12 @@ class GSM8KBaselineExperiment:
         model: str,
         baselines_to_run: List[str],
         self_refine_max_iter: int = 4,
-        tot_candidates: int = 3,
-        tot_beam: int = 2,
-        tot_depth: int = 3,
     ) -> None:
         self.model = model
         self.baselines_to_run = baselines_to_run
         self.loader = GSM8KLoader()
         self._api_key = api_key
         self._self_refine_max_iter = self_refine_max_iter
-        self._tot_candidates = tot_candidates
-        self._tot_beam = tot_beam
-        self._tot_depth = tot_depth
 
     def _make_solvers(self) -> Dict[str, Any]:
         """Create a fresh, independent set of solvers (one per thread)."""
@@ -246,13 +238,6 @@ class GSM8KBaselineExperiment:
             solvers["self_refine"] = SelfRefine(client(), max_iter=self._self_refine_max_iter)
         if "self_reflection" in self.baselines_to_run:
             solvers["self_reflection"] = SelfReflection(client())
-        if "tree_of_thoughts" in self.baselines_to_run:
-            solvers["tree_of_thoughts"] = TreeOfThoughts(
-                client(),
-                num_candidates=self._tot_candidates,
-                beam_width=self._tot_beam,
-                max_depth=self._tot_depth,
-            )
         return solvers
 
     def run(
@@ -403,7 +388,7 @@ def main() -> None:
     load_dotenv()
 
     parser = argparse.ArgumentParser(
-        description="Run GSM8K baseline comparison (Self-Refine, Self-Reflection, Tree of Thoughts)"
+        description="Run GSM8K baseline comparison (Direct, Self-Refine, Self-Reflection)"
     )
     parser.add_argument(
         "--num_rows",
@@ -430,24 +415,6 @@ def main() -> None:
         type=int,
         default=4,
         help="Maximum refinement iterations for Self-Refine (default: 4)",
-    )
-    parser.add_argument(
-        "--tot_candidates",
-        type=int,
-        default=3,
-        help="Tree of Thoughts: candidate thoughts per state (k, default: 3)",
-    )
-    parser.add_argument(
-        "--tot_beam",
-        type=int,
-        default=2,
-        help="Tree of Thoughts: beam width between levels (b, default: 2)",
-    )
-    parser.add_argument(
-        "--tot_depth",
-        type=int,
-        default=3,
-        help="Tree of Thoughts: BFS depth levels (T, default: 3)",
     )
     parser.add_argument(
         "--resume",
@@ -492,9 +459,6 @@ def main() -> None:
         model=args.model,
         baselines_to_run=args.baselines,
         self_refine_max_iter=args.self_refine_max_iter,
-        tot_candidates=args.tot_candidates,
-        tot_beam=args.tot_beam,
-        tot_depth=args.tot_depth,
     )
     experiment.run(num_rows=args.num_rows, resume_path=resume_path, workers=args.workers, sample_n=args.sample)
 

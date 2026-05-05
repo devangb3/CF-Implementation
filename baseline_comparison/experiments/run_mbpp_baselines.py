@@ -1,7 +1,7 @@
 """
 MBPP Baseline Comparison Experiment
 =====================================
-Compares three iterative-reasoning baselines against a Direct (single-pass) baseline
+Compares two iterative-reasoning baselines against a Direct (single-pass) baseline
 on the MBPP Python code-generation benchmark.
 
 Each baseline generates Python code that is tested against unit tests via Docker.
@@ -12,7 +12,6 @@ Baselines:
     Direct          – single-pass code generation (lower bound)
     Self-Refine     – Madaan et al. 2023  (https://arxiv.org/abs/2303.17651)
     Self-Reflection – arXiv 2405.06682    (https://arxiv.org/pdf/2405.06682)
-    Tree of Thoughts – Yao et al. 2023   (https://arxiv.org/abs/2305.10601)
 
 Model:       openai/gpt-5-chat
 Temperature: 0.2 for code generation (deterministic precision)
@@ -51,7 +50,7 @@ from experiments.humaneval.docker_code_executor import DockerCodeExecutor
 from experiments.humaneval.humaneval_reexecutor import HumanevalReexecutor
 
 RESULTS_DIR = Path(__file__).parent.parent / "results"
-ALL_BASELINES = ["direct", "self_refine", "self_reflection", "tree_of_thoughts"]
+ALL_BASELINES = ["direct", "self_refine", "self_reflection"]
 
 
 def _find_latest_checkpoint(prefix: str) -> Optional[Path]:
@@ -292,125 +291,6 @@ class SelfReflectionMBPP(DirectMBPP):
         }
 
 
-class TreeOfThoughtsMBPP(DirectMBPP):
-    """
-    Tree of Thoughts for code generation.
-
-    BFS over code strategies:
-        Level 1 – propose k high-level algorithmic approaches (evaluate → keep top b)
-        Level 2 – for each surviving approach, generate full implementation
-        Test all implementations; return first passing or the one with fewest failures.
-    """
-
-    def __init__(
-        self,
-        llm: LLMClient,
-        reexecutor: HumanevalReexecutor,
-        num_candidates: int = 3,
-        beam_width: int = 2,
-    ) -> None:
-        super().__init__(llm, reexecutor)
-        self.k = num_candidates
-        self.b = beam_width
-
-    def _propose_approaches(self, prompt: str) -> List[str]:
-        response = self.llm.generate(
-            (
-                f"Propose {self.k} distinct algorithmic strategies to implement this Python function.\n\n"
-                f"Task:\n{prompt}\n\n"
-                f"For each strategy describe the algorithm in 1-2 sentences (no code). "
-                f"Number them 1, 2, {self.k}."
-            ),
-            system_message="You are a creative algorithmist. Propose diverse approaches.",
-            temperature=REASON_TEMPERATURE,
-        )
-        approaches: List[str] = []
-        for m in re.finditer(r'(?:^|\n)\s*\d+[.)]\s*(.+?)(?=\n\s*\d+[.)]|\Z)', response, re.DOTALL):
-            a = m.group(1).strip()
-            if a:
-                approaches.append(a)
-        if len(approaches) < self.k:
-            lines = [l.strip() for l in response.splitlines() if l.strip()]
-            seen = set(approaches)
-            for l in lines:
-                if l not in seen:
-                    approaches.append(l)
-                    seen.add(l)
-        return approaches[:self.k]
-
-    def _evaluate_approaches(self, prompt: str, approaches: List[str]) -> List[float]:
-        text = "\n".join(f"{i+1}. {a}" for i, a in enumerate(approaches))
-        response = self.llm.generate(
-            (
-                f"Rate each strategy for implementing this Python function (1-10).\n\n"
-                f"Task:\n{prompt}\n\n"
-                f"Strategies:\n{text}\n\n"
-                f"Score each 1-10 (10 = most correct and efficient). "
-                f"Reply with only {len(approaches)} comma-separated numbers, e.g. '8, 6, 7'."
-            ),
-            system_message="You are a precise Python algorithm evaluator. Rate strategies 1-10.",
-            temperature=REASON_TEMPERATURE,
-        )
-        raw = re.findall(r'\b(10|[1-9])\b', response)
-        scores = [float(s) for s in raw[:len(approaches)]]
-        while len(scores) < len(approaches):
-            scores.append(5.0)
-        return scores
-
-    def _implement(self, prompt: str, approach: str, entry_point: str = "") -> str:
-        ep_hint = f"\n\nIMPORTANT: The function MUST be named exactly `{entry_point}`." if entry_point else ""
-        raw = self.llm.generate(
-            (
-                f"Implement this Python function using the algorithmic approach described below.\n\n"
-                f"Task:\n{prompt}{ep_hint}\n\n"
-                f"Approach: {approach}\n\n"
-                f"Return ONLY Python code."
-            ),
-            system_message="You are a precise Python expert. Return only code.",
-            temperature=CODE_TEMPERATURE,
-        )
-        return extract_code(raw)
-
-    def solve(self, task: Dict[str, Any]) -> Dict[str, Any]:
-        approaches = self._propose_approaches(task["prompt"])
-        llm_calls = 1
-
-        scores = self._evaluate_approaches(task["prompt"], approaches)
-        llm_calls += 1
-
-        # Keep top-b approaches
-        ranked = sorted(zip(approaches, scores), key=lambda x: x[1], reverse=True)
-        top_approaches = ranked[:self.b]
-
-        beam_results: List[Dict[str, Any]] = []
-        best_code = ""
-        best_success = False
-        best_logs = ""
-
-        for approach, score in top_approaches:
-            code = self._implement(task["prompt"], approach, entry_point=task.get("entry_point", ""))
-            llm_calls += 1
-            success, _, logs = self.reexecutor.run_solution(task["prompt"], code, task["tests"])
-            beam_results.append({"approach": approach, "score": score, "success": success, "logs": logs})
-            # Prefer first passing solution, or keep last if none pass
-            if success and not best_success:
-                best_success = True
-                best_code = code
-                best_logs = logs
-            elif not best_success:
-                best_code = code
-                best_logs = logs
-
-        return {
-            "is_correct": best_success,
-            "minimality": None,
-            "llm_calls": llm_calls,
-            "final_code": best_code,
-            "test_logs": best_logs,
-            "beam_results": beam_results,
-        }
-
-
 # ---------------------------------------------------------------------------
 # Statistics helpers (same pattern as GSM8K baseline)
 # ---------------------------------------------------------------------------
@@ -464,16 +344,12 @@ class MBPPBaselineExperiment:
         model: str = MODEL,
         baselines_to_run: Optional[List[str]] = None,
         self_refine_max_iter: int = 3,
-        tot_candidates: int = 3,
-        tot_beam: int = 2,
     ) -> None:
         self.model = model
         self.baselines_to_run = baselines_to_run or ALL_BASELINES
         self.loader = MBPPDataLoader(dataset_name="mbpp", split="all")
         self._api_key = api_key
         self._self_refine_max_iter = self_refine_max_iter
-        self._tot_candidates = tot_candidates
-        self._tot_beam = tot_beam
 
     def _make_solvers(self) -> Dict[str, Any]:
         """Create a fresh, independent set of solvers (one per thread)."""
@@ -487,10 +363,6 @@ class MBPPBaselineExperiment:
             solvers["self_refine"] = SelfRefineMBPP(llm, reexecutor, max_iter=self._self_refine_max_iter)
         if "self_reflection" in self.baselines_to_run:
             solvers["self_reflection"] = SelfReflectionMBPP(llm, reexecutor)
-        if "tree_of_thoughts" in self.baselines_to_run:
-            solvers["tree_of_thoughts"] = TreeOfThoughtsMBPP(
-                llm, reexecutor, num_candidates=self._tot_candidates, beam_width=self._tot_beam
-            )
         return solvers
 
     def run(
@@ -631,7 +503,7 @@ def main() -> None:
     load_dotenv()
 
     parser = argparse.ArgumentParser(
-        description="MBPP baseline comparison (Self-Refine, Self-Reflection, Tree of Thoughts)"
+        description="MBPP baseline comparison (Direct, Self-Refine, Self-Reflection)"
     )
     parser.add_argument("--num_rows", type=int, default=None,
                         help="Number of MBPP tasks (default: all ~947)")
@@ -641,10 +513,6 @@ def main() -> None:
                         help="OpenRouter model identifier")
     parser.add_argument("--self_refine_max_iter", type=int, default=3,
                         help="Self-Refine: max refinement iterations (default: 3)")
-    parser.add_argument("--tot_candidates", type=int, default=3,
-                        help="Tree of Thoughts: candidate approaches (k, default: 3)")
-    parser.add_argument("--tot_beam", type=int, default=2,
-                        help="Tree of Thoughts: beam width (b, default: 2)")
     parser.add_argument("--resume", nargs="?", const="latest", default=None, metavar="FILE",
                         help="Resume from checkpoint. Omit FILE to auto-pick latest mbpp_*.json.")
     parser.add_argument("--workers", type=int, default=1,
@@ -668,8 +536,6 @@ def main() -> None:
         model=args.model,
         baselines_to_run=args.baselines,
         self_refine_max_iter=args.self_refine_max_iter,
-        tot_candidates=args.tot_candidates,
-        tot_beam=args.tot_beam,
     )
     experiment.run(num_rows=args.num_rows, resume_path=resume_path, workers=args.workers, sample_n=args.sample)
 

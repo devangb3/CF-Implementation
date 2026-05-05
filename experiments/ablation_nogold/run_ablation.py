@@ -1,21 +1,21 @@
-"""Semantic-minimality ablation runner.
+"""No-gold repair-prompt ablation runner (Half A).
 
-Replays CausalFlow's repair phase over a subset of previously-run
-failing traces, scoring every proposal under three minimality metrics
-(lexical, normalized Levenshtein, embedding cosine) in a single pass. Results
-are persisted under ``experiment_name = ablation_minimality_{benchmark}`` so
-Phase 3 analysis can derive agreement rates and per-policy post-repair accuracy
-without further generation.
+Replays CausalFlow's repair phase over the same repairable-trace sample as
+the minimality ablation, but with ``use_gold_in_prompts=False`` so gold is
+never interpolated into the counterfactual-repair prompt. Attribution and
+critique paths are unchanged. Results are persisted under
+``experiment_name = ablation_nogold_{benchmark}`` so analysis can compute a
+paired repair-rate delta against the existing ``ablation_minimality_*``
+collections without regenerating the with-gold arm.
 
 Usage:
-    python -m experiments.ablation_minimality.run_ablation \\
+    python -m experiments.ablation_nogold.run_ablation \\
         --benchmark gsm8k \\
         --source-run-id run_GSM8K_2026-01-27T... \\
         [--limit N] [--dry-run]
 
-The ablation uses the LLM outcome predictor for all four benchmarks so that
-``success_predicted`` is produced by a single judge regardless of the original
-pipeline's reexecutor. The comparison across metrics stays apples-to-apples.
+Uses the LLM outcome predictor for ``success_predicted`` across all four
+benchmarks to keep the judge consistent with the minimality ablation.
 """
 
 from __future__ import annotations
@@ -38,16 +38,17 @@ from mongodb_storage import MongoDBStorage
 from trace_logger import StepType, TraceLogger
 
 
-# Plan-locked sample sizes.
+# Sample sizes must match experiments/ablation_minimality so the two arms
+# are paired per problem_id. SealQA/MedBrowse take all repairable (actual
+# pools in causal_flow_dups are smaller than the original plan: 26 and 67).
 SAMPLE_SIZES: Dict[str, Optional[int]] = {
     "gsm8k": 100,
     "mbpp": 100,
-    "sealqa": None,      # take all repairable (plan: all 32)
-    "medbrowse": 100,
+    "sealqa": None,      # all repairable (26 in source run)
+    "medbrowse": None,   # all repairable (67 in source run)
 }
 K_PROPOSALS = 5
 
-# Intervene step types per benchmark — mirrors the original runners.
 INTERVENE_STEP_TYPES = {
     StepType.TOOL_CALL,
     StepType.LLM_RESPONSE,
@@ -122,19 +123,19 @@ def run_one(
     start = time.time()
     analysis = causal_flow.analyze_trace(
         trace,
-        reexecutor=None,  # LLM predictor — consistent judge across benchmarks
+        reexecutor=None,
         execution_context=execution_context,
         skip_critique=True,
         intervene_step_types=INTERVENE_STEP_TYPES,
         num_proposals=K_PROPOSALS,
-        compute_semantic_minimality=True,
+        compute_semantic_minimality=False,
+        use_gold_in_prompts=False,
     )
     elapsed_minutes = (time.time() - start) / 60.0
     return analysis, elapsed_minutes
 
 
 def resolve_model_for_benchmark(benchmark: str) -> str:
-    # Mirrors the models used in the original runs.
     return {
         "gsm8k": "google/gemini-2.0-flash-lite-001",
         "mbpp": "openai/gpt-5-chat",
@@ -174,6 +175,7 @@ def _run_pass(
                 causal_flow_analysis_time_minutes=elapsed,
                 extra_metadata={
                     "ablation_benchmark": benchmark,
+                    "ablation_arm": "no_gold",
                     "source_problem_id": doc.get("problem_id"),
                 },
             )
@@ -186,14 +188,15 @@ def _run_pass(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Semantic-minimality ablation runner")
+    parser = argparse.ArgumentParser(description="No-gold repair-prompt ablation runner (Half A)")
     parser.add_argument(
         "--benchmark", required=True, choices=list(SAMPLE_SIZES.keys())
     )
     parser.add_argument(
         "--source-run-id",
         required=True,
-        help="MongoDB run_id of the original experiment for this benchmark",
+        help="MongoDB run_id of the original experiment for this benchmark "
+             "(same value used for the minimality ablation)",
     )
     parser.add_argument(
         "--limit", type=int, default=None, help="Cap sample size (smoke tests)"
@@ -211,7 +214,8 @@ def main() -> None:
     parser.add_argument(
         "--db-name",
         default="causal_flow_dups",
-        help="MongoDB database name (default: causal_flow_dups)",
+        help="MongoDB database name (default: causal_flow_dups — the DB that holds "
+             "the paired minimality-ablation runs)",
     )
     args = parser.parse_args()
 
@@ -220,6 +224,7 @@ def main() -> None:
     if not api_key and not args.dry_run:
         raise RuntimeError("OPENROUTER_SECRET_KEY not found in .env file")
 
+    # Override MONGODB_NAME before MongoDBStorage reads it.
     os.environ["MONGODB_NAME"] = args.db_name
     storage = MongoDBStorage()
     repairable = load_repairable_traces(storage, args.source_run_id)
@@ -231,7 +236,7 @@ def main() -> None:
     print(f"Sample: {len(sample)} traces")
 
     model = args.model or resolve_model_for_benchmark(args.benchmark)
-    experiment_name = f"ablation_minimality_{args.benchmark}"
+    experiment_name = f"ablation_nogold_{args.benchmark}"
 
     if not args.dry_run:
         run_id = storage.create_run(

@@ -77,6 +77,7 @@ class CounterfactualRepair:
         execution_context: Optional[Dict[str, Any]] = None,
         num_proposals: int = 3,
         compute_semantic_minimality: bool = False,
+        use_gold_in_prompts: bool = True,
     ):
 
         self.trace = trace #The failed execution trace
@@ -86,6 +87,7 @@ class CounterfactualRepair:
         self.execution_context = execution_context or {} #Context needed for execution (prompt, tests, entry_point, etc.)
         self.num_proposals = num_proposals #Default K for proposal generation (paper default 3; ablation uses 5)
         self.compute_semantic_minimality = compute_semantic_minimality #Whether to call the embedder per proposal
+        self.use_gold_in_prompts = use_gold_in_prompts #When False, gold is not interpolated into repair prompts (no-gold ablation)
         self._embedder: Optional[Embedder] = (
             Embedder() if compute_semantic_minimality else None
         )
@@ -124,22 +126,38 @@ class CounterfactualRepair:
             prompt = self._create_repair_prompt(original_step, previous_steps)
 
             try:
-                result = self.llm_client.generate_structured(
-                    prompt,
-                    schema_name="repair",
-                    system_message="""You are an expert at debugging and fixing agent failures. 
+                if self.use_gold_in_prompts:
+                    system_message = """You are an expert at debugging and fixing agent failures.
                                     Your goal is to fix the specific LOGICAL ERROR in THIS step only, not to achieve the final answer.
-                                    
+
                                     CRITICAL RULES:
                                     1. Fix what went wrong in THIS step's logic - focus on the error in THIS step, not the entire solution
                                     2. DO NOT directly use, search for, or reference the gold answer in your repair
                                     3. Generate MINIMAL, TARGETED edits that fix the logical error in THIS step
                                     4. For tool calls: fix the reasoning/query for THIS sub-goal, don't jump to searching for the final answer
                                     5. Your repair should make sense even if the gold answer were different
-                                    
+
                                     Make the smallest possible change that fixes the logical error in THIS step.
                                     Always respond using the provided schema in JSON format.
-                                    """,
+                                    """
+                else:
+                    system_message = """You are an expert at debugging and fixing agent failures.
+                                    Your goal is to fix the specific LOGICAL ERROR in THIS step only, not to achieve the final answer.
+
+                                    CRITICAL RULES:
+                                    1. Fix what went wrong in THIS step's logic - focus on the error in THIS step, not the entire solution
+                                    2. Generate MINIMAL, TARGETED edits that fix the logical error in THIS step
+                                    3. For tool calls: fix the reasoning/query for THIS sub-goal, don't jump ahead to a final answer
+                                    4. Your repair should be a locally-justified fix, not a rewrite toward a specific final outcome
+
+                                    Make the smallest possible change that fixes the logical error in THIS step.
+                                    Always respond using the provided schema in JSON format.
+                                    """
+
+                result = self.llm_client.generate_structured(
+                    prompt,
+                    schema_name="repair",
+                    system_message=system_message,
                     temperature=0.7,
                     model_name=self.llm_client.model
                 )
@@ -192,8 +210,9 @@ class CounterfactualRepair:
 
     def _create_repair_prompt(self, step: Step, previous_steps: List[Step]) -> str:
         execution_logs = self._extract_execution_logs()
-        
-        prompt = f"""You are a "Causal Debugger" for an AI Agent. 
+
+        if self.use_gold_in_prompts:
+            prompt = f"""You are a "Debugger" for an AI Agent.
 The agent failed a task. Your goal is to fix the specific *logic error* in the current step.
 
 Problem Statement: {self.trace.problem_statement}
@@ -202,6 +221,13 @@ Agent's Incorrect Answer: {self.trace.final_answer}
 
 IMPORTANT: The correct answer is provided for reference to understand what the agent should have eventually arrived at.
 DO NOT directly incorporate the gold answer into your repair. Your repair should fix the logical error in THIS step only.
+"""
+        else:
+            prompt = f"""You are a "Debugger" for an AI Agent.
+The agent failed a task. Your goal is to fix the specific *logic error* in the current step.
+
+Problem Statement: {self.trace.problem_statement}
+Agent's Incorrect Answer: {self.trace.final_answer}
 """
 
         if execution_logs:
@@ -212,7 +238,8 @@ EXECUTION ERROR LOGS (what went wrong):
 Use these error logs to understand the specific failure and create a targeted fix.
 """
 
-        prompt += f"""
+        if self.use_gold_in_prompts:
+            prompt += f"""
 CRITICAL CONSTRAINTS:
 1. The gold answer is provided for reference ONLY - DO NOT directly use it in your repair
 2. Fix the logical error in THIS step only - not the entire solution path
@@ -222,6 +249,21 @@ CRITICAL CONSTRAINTS:
 
 BAD EXAMPLE: If this step searches for "Person B who won Rollo Davidson Prize", DO NOT change it to search for "Russell Lyons" (the gold answer)
 GOOD EXAMPLE: Fix the search query logic to correctly find Person B based on the constraints given in THIS step
+
+Recent previous steps:
+{json.dumps([step.to_dict() for step in previous_steps], indent=2)}
+
+TARGET STEP TO FIX: Below is the step that has been identified as causally responsible for the failure.
+
+Step {step.step_id} ({step.step_type.value}):
+"""
+        else:
+            prompt += f"""
+CRITICAL CONSTRAINTS:
+1. Fix the logical error in THIS step only - not the entire solution path
+2. For tool calls: fix the reasoning/query for THIS sub-goal, don't jump ahead to a final answer
+3. Your repair should be a locally-justified fix of THIS step's logic
+4. Focus on what went wrong in THIS step, not on producing any particular final answer
 
 Recent previous steps:
 {json.dumps([step.to_dict() for step in previous_steps], indent=2)}
@@ -245,8 +287,11 @@ Step {step.step_id} ({step.step_type.value}):
             prompt += f"Original Arguments: {json.dumps(step.tool_args)}\n\n"
             prompt += "Based on the execution error logs, identify and fix the logical error in THIS tool call.\n"
             prompt += "Focus on fixing what went wrong with THIS specific tool usage - the reasoning or query for THIS sub-goal.\n"
-            prompt += "DO NOT change the tool arguments to directly search for or reference the gold answer.\n"
-            prompt += "Example: If searching for 'Person B', fix the search logic for Person B - don't change it to search for the final answer.\n"
+            if self.use_gold_in_prompts:
+                prompt += "DO NOT change the tool arguments to directly search for or reference the gold answer.\n"
+                prompt += "Example: If searching for 'Person B', fix the search logic for Person B - don't change it to search for the final answer.\n"
+            else:
+                prompt += "Example: If searching for 'Person B', fix the search logic for Person B - don't jump ahead to searching for a specific final answer.\n"
             prompt += "Fill in 'repaired_tool_name' and 'repaired_tool_args_json' (as a valid JSON string, e.g. '{\"key\": \"value\"}').\n"
             prompt += "List the specific changes in 'changes_made'.\n"
             prompt += "Explain why this is minimal and targeted in 'minimality_justification'."
@@ -287,7 +332,8 @@ Step {step.step_id} ({step.step_type.value}):
             prompt += "List changes in 'changes_made'.\n"
             prompt += "Explain minimality in 'minimality_justification'."
 
-        prompt += """
+        if self.use_gold_in_prompts:
+            prompt += """
 
 CRITICAL REMINDERS:
 1. You are patching the track, not driving the train - fix THIS step's logic, not the entire solution
@@ -300,6 +346,21 @@ BAD: Changing search query from "Rollo Davidson Prize winner" to "Russell Lyons 
 GOOD: Changing search query from "Rollo Davidson Prize winner" to "Rollo Davidson Prize 1990-2005" (fixes the logic for THIS step)
 
 BAD: Updating reasoning to "The answer is Russell Lyons" (states final answer)
+GOOD: Updating reasoning to "Need to check publication dates between 1990-2005, not all publications" (fixes logic flaw)
+"""
+        else:
+            prompt += """
+
+CRITICAL REMINDERS:
+1. You are patching the track, not driving the train - fix THIS step's logic, not the entire solution
+2. If you simply restate or guess a final answer, the repair will be rejected for low minimality
+3. Fix only the logical error in THIS step - your repair should stand on its own regardless of what the final answer turns out to be
+
+CONCRETE EXAMPLES OF BAD vs GOOD REPAIRS:
+BAD: Changing search query from "Rollo Davidson Prize winner" to a specific guessed name (jumps ahead to a final answer)
+GOOD: Changing search query from "Rollo Davidson Prize winner" to "Rollo Davidson Prize 1990-2005" (fixes the logic for THIS step)
+
+BAD: Updating reasoning to "The answer is <name>" (states a final answer)
 GOOD: Updating reasoning to "Need to check publication dates between 1990-2005, not all publications" (fixes logic flaw)
 """
 

@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "description": "Paired per-proposal repair success rate with vs without gold in the repair prompt. Restricted to traces where both arms produced at least one repair proposal.",
+    "k_proposals": 5,
+    "db": "causal_flow_dups",
+    "status": "preliminary; GSM8K pending run completion on llama-3.1-8b-instruct"
+  },
+  "gsm8k": {
+    "status": "pending",
+    "note": "Main-paper model gemini-2.0-flash-lite-001 hit sustained 429 RESOURCE_EXHAUSTED; both arms to be re-run on meta-llama/llama-3.1-8b-instruct to preserve pairing.",
+    "model_used": "meta-llama/llama-3.1-8b-instruct",
+    "paired_traces": null,
+    "with_gold": {"proposals": null, "success": null, "rate": null},
+    "no_gold":   {"proposals": null, "success": null, "rate": null},
+    "delta_pp": null,
+    "run_ids": {
+      "minimality": "run_ablation_minimality_gsm8k_<TBD>",
+      "nogold":     "run_ablation_nogold_gsm8k_<TBD>"
+    }
+  },
+  "mbpp": {
+    "status": "complete",
+    "model_used": "openai/gpt-5-chat",
+    "paired_traces": 68,
+    "with_gold": {"proposals": 645, "success": 350, "rate": 0.5426},
+    "no_gold":   {"proposals": 635, "success": 385, "rate": 0.6063},
+    "delta_pp": 6.37,
+    "run_ids": {
+      "minimality": "run_ablation_minimality_mbpp_2026-04-26T15:11:02.067955",
+      "nogold":     "run_ablation_nogold_mbpp_2026-04-28T03:40:53.212511"
+    }
+  },
+  "sealqa": {
+    "status": "complete",
+    "model_used": "google/gemini-3-flash-preview",
+    "paired_traces": 21,
+    "with_gold": {"proposals": 305, "success": 191, "rate": 0.6262},
+    "no_gold":   {"proposals": 290, "success": 120, "rate": 0.4138},
+    "delta_pp": -21.24,
+    "run_ids": {
+      "minimality": "run_ablation_minimality_sealqa_2026-04-26T17:02:02.343163",
+      "nogold":     "run_ablation_nogold_sealqa_2026-04-28T05:12:07.140498"
+    }
+  },
+  "medbrowse": {
+    "status": "complete",
+    "model_used": "google/gemini-3-flash-preview",
+    "paired_traces": 61,
+    "with_gold": {"proposals": 705, "success": 456, "rate": 0.6468},
+    "no_gold":   {"proposals": 690, "success": 405, "rate": 0.5870},
+    "delta_pp": -5.99,
+    "run_ids": {
+      "minimality": "run_ablation_minimality_medbrowse_2026-04-26T17:48:08.660065",
+      "nogold":     "run_ablation_nogold_medbrowse_2026-04-28T14:45:06.049770"
+    }
+  },
+  "free_form_pooled": {
+    "status": "complete",
+    "benchmarks": ["sealqa", "medbrowse"],
+    "paired_traces": 82,
+    "with_gold": {"proposals": 1010, "success": 647, "rate": 0.6406},
+    "no_gold":   {"proposals": 980, "success": 525, "rate": 0.5357},
+    "delta_pp": -10.49
+  }
+}

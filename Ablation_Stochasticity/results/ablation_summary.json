@@ -1,0 +1,45 @@
+{
+  "num_total": 50,
+  "num_initially_correct": 38,
+  "num_failed": 12,
+  "initial_accuracy": 0.76,
+  "per_run_metrics": [
+    {
+      "run_idx": 0,
+      "num_repaired": 7,
+      "repair_rate": 0.5833,
+      "post_repair_accuracy": 0.9
+    },
+    {
+      "run_idx": 1,
+      "num_repaired": 8,
+      "repair_rate": 0.6667,
+      "post_repair_accuracy": 0.92
+    },
+    {
+      "run_idx": 2,
+      "num_repaired": 6,
+      "repair_rate": 0.5,
+      "post_repair_accuracy": 0.88
+    }
+  ],
+  "repair_rate": {
+    "mean": 0.5833,
+    "std": 0.0681,
+    "per_run": [
+      0.5833,
+      0.6667,
+      0.5
+    ]
+  },
+  "post_repair_accuracy": {
+    "mean": 0.9,
+    "std": 0.0163,
+    "per_run": [
+      0.9,
+      0.92,
+      0.88
+    ]
+  },
+  "elapsed_minutes": 25.36
+}

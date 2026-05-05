@@ -38,6 +38,7 @@ class CausalFlow:
         intervene_step_types: Optional[Set[StepType]] = None,
         num_proposals: int = 3,
         compute_semantic_minimality: bool = False,
+        use_gold_in_prompts: bool = True,
     ) -> Dict[str, Any]:
 
         self.trace = trace
@@ -59,7 +60,7 @@ class CausalFlow:
         causal_steps = self.causal_attribution.get_causal_steps()
         print(f"Attribution complete: {len(causal_steps)} causal steps identified")
 
-        print(f"Generating counterfactual repairs (K={num_proposals}, sem={compute_semantic_minimality})")
+        print(f"Generating counterfactual repairs (K={num_proposals}, sem={compute_semantic_minimality}, use_gold={use_gold_in_prompts})")
         self.counterfactual_repair = CounterfactualRepair(
             trace=self.trace,
             causal_attribution=self.causal_attribution,
@@ -68,6 +69,7 @@ class CausalFlow:
             execution_context=execution_context,
             num_proposals=num_proposals,
             compute_semantic_minimality=compute_semantic_minimality,
+            use_gold_in_prompts=use_gold_in_prompts,
         )
         repairs = self.counterfactual_repair.generate_repairs(step_ids=causal_steps)
         print(f"Repair complete: {sum(len(r) for r in repairs.values())} repairs proposed")

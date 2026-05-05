@@ -1,6 +1,8 @@
 # Baseline Comparison
 
-Compares two iterative-reasoning baselines against a Direct (single-pass CoT) baseline across four benchmarks. Results are saved as JSON to `baseline_comparison/results/` after every problem so runs can be inspected or resumed mid-way.
+Compares two iterative-reasoning baselines against a Direct (single-pass CoT) baseline across the same benchmarks used in [`research/CausalFlow.pdf`](../research/CausalFlow.pdf) (§5): GSM8K, MBPP, SealQA Hard, MedBrowseComp. CausalFlow itself is evaluated via the main `experiments/` scripts, not this folder.
+
+Results are saved as JSON to `baseline_comparison/results/` after every problem so runs can be inspected or resumed mid-way.
 
 ---
 

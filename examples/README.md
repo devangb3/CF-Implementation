@@ -30,7 +30,7 @@ A basic demonstration showing how to create a failed trace and analyze it with C
 
 **Usage**:
 ```bash
-cd /path/to/CF-Implementation
+cd /path/to/CausalFlow
 python examples/demo.py
 ```
 
@@ -81,7 +81,7 @@ Agent's Error (Step 4):
 
 **Usage**:
 ```bash
-cd /path/to/CF-Implementation
+cd /path/to/CausalFlow
 python examples/complex_example.py
 ```
 
@@ -130,7 +130,7 @@ if not trace.success:
 
 Before running these examples, ensure you have:
 
-1. **API Key**: Set up your OpenRouter API key in a `.env` file:
+1. **API Key**: Set up your OpenRouter key in a `.env` file in the project root. The codebase reads **`OPENROUTER_SECRET_KEY`** (see root `.env.example`).
    ```bash
    OPENROUTER_SECRET_KEY=your-api-key-here
    ```
@@ -202,7 +202,7 @@ After running the examples, you'll find generated files in the `examples/` direc
 
 ## Troubleshooting
 
-**Problem**: `OPENROUTER_SECRET_KEY not found`
+**Problem**: `OPENROUTER_SECRET_KEY` missing or “not found”
 - **Solution**: Create a `.env` file in the project root with your API key
 
 **Problem**: `ModuleNotFoundError`
@@ -213,6 +213,6 @@ After running the examples, you'll find generated files in the `examples/` direc
 
 ## Additional Resources
 
-- [CausalFlow Paper](../CausalFlow.pdf): Original research paper
+- [CausalFlow paper PDF](../research/CausalFlow.pdf): manuscript describing the method (§4–§5 match the implemented pipeline)
 - [Main README](../README.md): Project overview and setup
 - [OpenRouter Documentation](https://openrouter.ai/docs): LLM API details

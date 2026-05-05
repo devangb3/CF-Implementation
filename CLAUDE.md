@@ -11,10 +11,12 @@ pip install -r requirements.txt
 cp .env.example .env  # fill in keys
 ```
 
-`.env` keys:
-- `OPENROUTER_SECRET_KEY` — LLM API access via OpenRouter
+`.env` keys (match `.env.example`):
+- `OPENROUTER_SECRET_KEY` — LLM API access via OpenRouter (do **not** use `OPENROUTER_API_KEY`; code expects `OPENROUTER_SECRET_KEY`)
 - `MONGODB_URI` — MongoDB connection (default: `mongodb://localhost:27017/causalflow`)
 - `SERPER_API_KEY` — Web search (required for BrowseComp/SealQA/MedBrowseComp)
+
+**Paper / spec:** [`research/CausalFlow.pdf`](research/CausalFlow.pdf) — CRS, sequential re-execution, minimality, multi-agent consensus (§4–§5).
 
 ## Running Experiments
 
@@ -46,11 +48,11 @@ python examples/complex_example.py
 
 ## Architecture
 
-CausalFlow is a post-hoc failure analysis framework for LLM agents. When an agent fails, it:
+CausalFlow is a post-hoc failure analysis framework for LLM agents (see `research/CausalFlow.pdf`, §4). When an agent fails, it:
 1. Builds a causal DAG from the recorded execution trace
-2. Identifies causal steps via intervention and reexecution
-3. Generates minimal counterfactual repairs
-4. Validates repairs via multi-agent critique
+2. Identifies causal steps via **sequential** intervention and re-execution of downstream steps (CRS)
+3. Generates minimal counterfactual repairs and validates them with the task verifier (executor or LLM **outcome prediction**)
+4. Optionally runs **multi-agent critique** to confirm attributions (`skip_critique=True` when a deterministic executor already validates repairs, e.g. MBPP)
 
 ### Core pipeline (`causal_flow.py`)
 
@@ -76,10 +78,10 @@ TraceLogger → CausalGraph → CausalAttribution → CounterfactualRepair → M
 
 ### Reexecutors
 
-Experiments use different reexecutors depending on task type:
-- **GSM8K**: `MathReexecutor` (deterministic — parses `#### NUMBER` format)
-- **MBPP / HumanEval**: `HumanevalReexecutor` (runs code in Docker, checks test assertions)
-- **Web QA** (BrowseComp, SealQA, MedBrowseComp): LLM-based outcome prediction (no deterministic reexecutor)
+Experiments use different validation for **intervened** traces:
+- **GSM8K** — Agent uses `MathReexecutor` for calculator tools and final numeric grading; the GSM8K experiment passes `reexecutor=None` into `analyze_trace`, so **CRS/repair validation uses LLM outcome prediction** (not deterministic reexecution of the branched trace).
+- **MBPP / HumanEval**: `HumanevalReexecutor` (Docker tests) for attribution and repair validation when wired into `analyze_trace`.
+- **Web QA** (BrowseComp, SealQA, MedBrowseComp): LLM-based outcome prediction for interventions.
 
 ### Baselines (`baseline_comparison/`)
 
@@ -95,3 +97,7 @@ Results are written as JSON to `baseline_comparison/results/<task>_<timestamp>.j
 ### Web search caching
 
 BrowseComp-based experiments cache web results in `.cache/browsecomp/` via `WebEnvironment` for deterministic reruns.
+
+### Ablations (`ablations/`)
+
+Reviewer-facing analyses (LLM judge calibration, minimality / no-gold / stochasticity) live under `ablations/` with package-style entry points, e.g. `python -m ablations.ablation_judge.sample_for_review`. See each subdirectory’s README.

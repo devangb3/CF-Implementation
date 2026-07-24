@@ -1,6 +1,9 @@
 # CausalFlow
 
-Implementation of **CausalFlow**, an interventional framework for **causal attribution** and **counterfactual repair** on multi-step LLM agent traces. : Execution is modeled as a dependent sequence of steps; for failed traces, step-level interventions and sequential re-execution identify **Causal Responsibility Scores (CRS)**; high-CRS steps receive **minimal edits** that are validated under the task verifier, yielding **contrastive pairs** \((\text{wrong step}, \text{corrected step})\) useful for deploy-time repair and offline training (e.g. preference optimization).
+**CausalFlow** is an interventional framework for **causal attribution** and **counterfactual repair** in multi-step LLM-agent traces. It models execution as a dependency graph, intervenes on candidate steps, re-executes downstream work when an executor is available, and assigns **Causal Responsibility Scores (CRS)** based on whether the intervention flips the outcome. High-CRS steps receive minimal edits that are validated under the benchmark-specific evaluator, yielding contrastive pairs useful for deploy-time repair and preference training.
+
+## Verified results headline
+CausalFlow raises aggregate effective success from **61.6% to 78.1% (+16.5 percentage points)**. See [`RESULTS.md`](RESULTS.md) for run IDs, denominators, evaluator semantics, and excluded overlapping reruns.
 
 ## What’s in this repository
 
@@ -88,10 +91,11 @@ python baseline_comparison/experiments/run_sealqa_baselines.py --workers 4
 
 ## Further reading
 
-- **Experiment details and results snapshot:** [`EXPERIMENTS_OVERVIEW.md`](EXPERIMENTS_OVERVIEW.md)
+- **Audited results and run provenance:** [`RESULTS.md`](RESULTS.md)
+- **Experiment implementation details:** [`EXPERIMENTS_OVERVIEW.md`](EXPERIMENTS_OVERVIEW.md)
 - **Baseline methodology:** [`baseline_comparison/baseline_comparison.md`](baseline_comparison/baseline_comparison.md)
 - **Sample textual report artifact:** `causalflow_report.txt` (from `CausalFlow.generate_full_report` in the library)
 
 ## Citation
 
-
+The NeurIPS 2026 submission is under anonymous review, so public citation metadata is intentionally omitted. Citation details can be added after a public preprint or accepted version is available.
